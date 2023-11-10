@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "facebook-scraping-selenium"
+version = "0.1.0"
+description = ""
+authors = ["zwe-htet-paing <zwehtetpaing.works@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+selenium = "^4.14.0"
+pandas = "*"
+beautifulsoup4 = "^4.12.2"
+lxml = "^4.9.3"
+dateparser = "^1.1.8"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
