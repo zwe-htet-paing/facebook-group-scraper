@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 from pathlib import Path
 import glob
@@ -121,6 +122,7 @@ def get_logger(name="nayar_scraper"):
     return logger
     
 if __name__ == "__main__":
+    start_program = time.time()
     logger = get_logger()
     group_file_path = "./data/nayar_public_active_groups.csv"
     output_path="./data/downloads"
@@ -168,7 +170,7 @@ if __name__ == "__main__":
             continue
         else:
             logger.info(f"{'*'*6} Group ID: {group_id} {'*'*6}")
-            
+        start_time = time.time()
         # Get target page_source
         page_source = fb_scraper.get_source(group_id, num_posts=5)
         # Extract data from page_source
@@ -176,6 +178,7 @@ if __name__ == "__main__":
         # Preprocess data
         df = preprocess_df(df, date_list)
         
+        # check dataframe length
         if len(df) == 0:
             logger.info("No data for provided date...")
         else:
@@ -189,11 +192,17 @@ if __name__ == "__main__":
             f.write('\n')
             
         logger.info(f"Group ID: {group_id} complete...")
-    
+        end_time = time.time()
+        
+        # Calculate elapsed time in minutes
+        elapsed_time = (end_time - start_time) / 60
+        logger.info(f"Elapsed Time: {elapsed_time:.2f} minutes")
+
     # close browser
     fb_scraper.close()
     
     # get all group csv file and combine dataframe
+    logger.info(f"{'*' * 40}")
     logger.info(f"Getting all data for date: {date_string}...")
     final_df = get_data_for_one_date(date_string=date_string, data_path=output_path)
     
@@ -204,3 +213,8 @@ if __name__ == "__main__":
     output_file_path = os.path.join(output_folder, f"{date_string}_output_{len(final_df)}.csv")
     final_df.to_csv(output_file_path, index=False)
     logger.info(f"DataFrame saved to {output_file_path}")
+    
+    end_program = time.time()    
+    # Calculate elapsed time in minutes
+    elapsed_time = (end_program - start_program) / 60
+    logger.info(f"Elapsed Time: {elapsed_time:.2f} minutes")
