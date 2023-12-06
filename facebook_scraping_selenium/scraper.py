@@ -22,7 +22,7 @@ import logging
 from custom_utils import parse_datetime
 
 class FacebookScraper:
-    def __init__(self, credentials):
+    def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver"):
         #@ set options
         self.chrome_option = Options()
         self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode 
@@ -48,24 +48,8 @@ class FacebookScraper:
         console.setFormatter(formatter)
         self.logger.addHandler(console)
         
-        #@ entities
-        self.post_urls = []
-        self.user_ids = []
-        self.usernames = []
-        self.post_texts = []
-        self.dates = []
-
-        self.shared_post_urls = []
-        self.shared_user_ids = []
-        self.shared_usernames = []
-        self.shared_texts = []
-        self.shared_dates = []
-
-        self.images = []
-        self.shared_images = []
-        
         # start login
-        self.login(credentials=credentials)
+        self.login(credentials=credentials, driver_location=driver_location)
     
     @staticmethod
     def openSeeMore(browser):
@@ -91,16 +75,16 @@ class FacebookScraper:
                         continue
                     
             if len(readMore) - count > 0:
-                print('readMore issue:', len(readMore) - count)
+                print('[ERROR]readMore issue:', len(readMore) - count)
             time.sleep(1)
         else:
             pass
         
     @staticmethod 
     def date_handover(browser):
-
-        date_tag = 'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'
-        xpath_exp = "//span[@class='{}']"
+        # date_tag = 'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'
+        date_tag = "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
+        xpath_exp = "//a[@class='{}']"
         date_elements = browser.find_elements(By.XPATH, xpath_exp.format(date_tag))
         # date_elements = WebDriverWait(browser, 30).until(EC.presence_of_all_elements_located((By.XPATH, xpath_exp.format(date_tag))))
 
@@ -128,7 +112,7 @@ class FacebookScraper:
                         continue
                     
             if len(date_elements) - count > 0:
-                print('date_element issue:', len(date_elements) - count)
+                print('[ERROR] date_element issue:', len(date_elements) - count)
             time.sleep(1)
         else:
             pass
@@ -136,9 +120,9 @@ class FacebookScraper:
     @staticmethod
     def getBack(browser, end_url):
         if not browser.current_url.endswith(end_url):
-            print('redirected!!!')
+            # print('[INFO] redirected!!!')
             browser.back()
-            print('got back!!!')
+            # print('[INFO] got back!!!')
     
     @staticmethod
     def archiveAtEnd(browser, reviewList):
@@ -183,47 +167,18 @@ class FacebookScraper:
     
     @staticmethod
     def format_date(date_string):
-        # today_date = datetime.datetime.now()
-        # date_parts = date_string.split()
-        
-        # if 'seconds' in date_parts:
-        #     formatted_date = today_date
-        # elif 'minute' in date_parts:
-        #     minutes_ago = 1
-        #     formatted_date = today_date - datetime.timedelta(minutes=minutes_ago)
-        # elif 'minutes' in date_parts:
-        #     minutes_ago = int(date_parts[0])
-        #     formatted_date = today_date - datetime.timedelta(minutes=minutes_ago)    
-        # elif 'hour' in date_parts:
-        #     hours_ago = 1
-        #     formatted_date = today_date - datetime.timedelta(hours=hours_ago)
-        # elif 'hours' in date_parts:
-        #     hours_ago = int(date_parts[0])
-        #     formatted_date = today_date - datetime.timedelta(hours=hours_ago)
-        # elif 'day' in date_parts:
-        #     days_ago = 1
-        #     formatted_date = today_date - datetime.timedelta(days=days_ago)
-        # elif 'days' in date_parts:
-        #     days_ago = int(date_parts[0])
-        #     formatted_date = today_date - datetime.timedelta(days=days_ago)
-        # else:
-        #     formatted_date = today_date
-        
-        # # Format the date without seconds
-        # formatted_date = formatted_date.strftime('%Y-%m-%d %H:%M')
-        
         formatted_date = parse_datetime(date_string)
         
         return formatted_date
     
-    def login(self, credentials):
+    def login(self, credentials, driver_location):
         #@ credentials
         with open(credentials) as file:
             self.EMAIL = file.readline().split('"')[1]
             self.PASSWORD = file.readline().split('"')[1]
             
         self.logger.info("Starting browser...")
-        self.browser = webdriver.Chrome(service=Service("../chromedriver-linux64/chromedriver"), options=self.chrome_option)
+        self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
         self.browser.get("http://facebook.com")
         self.browser.maximize_window()
         wait = WebDriverWait(self.browser, 30)
@@ -241,11 +196,12 @@ class FacebookScraper:
         self.logger.info("Closing browser")
         self.browser.close()
     
-    def get_source(self, target_id, credentials, num_posts=20):
+    def get_source(self, target_id, num_posts=20):
         
         # once logged in, free to open up any target page
-        self.logger.info(f"Getting source to {target_id} ...")
-        self.logger.info("Go to target URL...")
+        self.logger.info("*" * 40)
+        self.logger.info(f"Getting source ...")
+        self.logger.info(f"Go to target URL: {target_id}...")
         self.browser.get(f"https://wwww.facebook.com/{target_id}")
 
         time.sleep(3)
@@ -316,9 +272,9 @@ class FacebookScraper:
     @staticmethod
     def get_post_url(r):    
         posts_tag = 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
-        post_id = r.find('a', {'class':posts_tag}).get('href')
+        post_url = r.find('a', {'class':posts_tag}).get('href')
         
-        return post_id
+        return post_url
     
     @staticmethod
     def get_user(r):    
@@ -340,13 +296,12 @@ class FacebookScraper:
             username = user_element.get_text().strip()
             user_id = 'None'
             
-            
         return user_id, username
     
     @staticmethod
     def get_text(r):
         text_tag = 'x193iq5w xeuugli x13faqbe x1vvkbs x10flsy6 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x41vudc x6prxxf xvq8zen xo1l8bm xzsf02u x1yc453h'
-        text_element = r.find('span',{'class':text_tag})
+        text_element = r.find('span',{'class':text_tag})        
         if text_element is not None:
             text = text_element.get_text().strip()
         else:
@@ -355,42 +310,74 @@ class FacebookScraper:
                 text = text_element.get_text().strip()
             else:
                 text_element = r.find('div', {'class':'x6s0dn4 x78zum5 xdt5ytf x5yr21d xl56j7k x10l6tqk x17qophe x13vifvy xh8yej3'})
-                if text_element is not None:
-                    text = text_element.get_text().strip()
-                else:
-                    text = 'no_text'
+                text = text_element.get_text().strip() if text_element is not None else ''
         
         return text
     
     @staticmethod
-    def get_date_index(r):          
-        span_element = r.find('span', {'class':'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'})
+    def get_shared_post(r):
+        share_post_tag = 'x1jx94hy x8cjs6t x1ch86jh x80vd3b xckqwgs x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xfh8nwu xoqspk4 x12v9rci x138vmkv x6ikm8r x10wlt62 x16n37ib xq8finb'     
+        shared_post = r.find('div', {'class':share_post_tag})
         
-        if span_element is not None:
-            # date_index = span_element['aria-labelledby']
-            date_index = span_element.find('use')['xlink:href'][1:]
-            return date_index
-        
+        return shared_post
+    
+    @staticmethod
+    def get_shared_text(r):
+        shared_text_element = r.find('div',{'class':'x1iorvi4 x1pi30zi x1l90r2v x1swvt13'})
+        if shared_text_element is not None:
+            shared_text = shared_text_element.get_text().strip()
         else:
-            return None
+            shared_text = ''
+            
+        return shared_text
+        
+    @staticmethod
+    def get_date_string(r, page):
+        # 1. Using <a> tag
+        date_tag = "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
+        date_element = r.find('a',{'class':date_tag})
+        date_string = date_element.get_text().strip()
+        # print(len(date_string))
+        
+        if len(date_string) == 0:
+            span_element = date_element.find('span', {'class':'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'})
+            if span_element is not None:
+                # 2. Using <use> tag
+                date_index = span_element.find('use')['xlink:href'][1:]
+                date_element = page.find('text', {'id':str(date_index)})
+                if date_element is None:
+                    # 3. Using "aria-labelledby" attribute
+                    date_index = span_element['aria-labelledby']
+                    date_element = page.find('span', {'id':str(date_index)})
+                    
+                date_string = date_element.text if date_element is not None else None
+                
+        return date_string
     
     @staticmethod
     def write_csv(df, filename):
-        df.to_csv(filename)
+        df.to_csv(filename, index=False)
     
-    # def get_images(self, r):
-    #     #@ images
-    #     image_tag='xz74otr x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3'
-    #     image_element=r.find_all('img', {'class':image_tag})
+    @staticmethod
+    def get_images(r):
+        #@ images
+        image_tag='xz74otr x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3'
+        image_element=r.find_all('img', {'class':image_tag})
+        
+        image_tag1='x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3 xl1xv1r'
+        image_element1=r.find_all('img', {'class':image_tag1})
+        
 
-    #     if image_element is not None:
-    #         temp_images = []
-    #         for image in image_element:
-    #             temp_images.append(image['src'])
+        temp_images = []
+        if image_element is not None:
+            for image in image_element:
+                temp_images.append(image['src'])
                 
-    #         self.images.append(temp_images)
-    #     else:
-    #         self.images.append(None)
+        if image_element1 is not None:
+            for image in image_element1:
+                temp_images.append(image['src'])
+                
+        return temp_images
     
     def extract_data(self, page_source):    
         page = bs(page_source, 'lxml')
@@ -398,44 +385,43 @@ class FacebookScraper:
             'class':'x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z'
                                     })
         
+        #@ entities
+        self.post_urls = []
+        self.user_ids = []
+        self.usernames = []
+        self.post_texts = []
+        self.dates = []
+
+        self.shared_post_urls = []
+        self.shared_user_ids = []
+        self.shared_usernames = []
+        self.shared_texts = []
+        self.shared_dates = []
+
+        self.images = []
+        
         for idx, r in enumerate(group_posts[1:]):
             
-            # if idx == 20:
-            #     break
-            
-            #@ post_url
+            #@ POST URL
             post_url = self.get_post_url(r)
             self.post_urls.append(post_url)
 
-            #@ user_id and username
+            #@ USER ID and USERNAME
             user_id, username = self.get_user(r)
             self.user_ids.append(user_id)
             self.usernames.append(username)
             
-            #@ text
+            #@ TEXT
             text = self.get_text(r)
             self.post_texts.append(text)
             
-            #@ date
-            date_index = self.get_date_index(r)  
+            #@ DATE
+            date_string = self.get_date_string(r, page)
+            formatted_date = self.format_date(date_string)
+            self.dates.append(formatted_date)
             
-            # date_element = page.find('span', {'id':str(date_index)})
-            date_element = page.find('text', {'id':str(date_index)})
-            if date_element is not None:
-                date = date_element.text.strip()
-                formated_date = self.format_date(date)
-            else:
-                # formated_date = 'None'
-                date_tag = "x4k7w5x x1h91t0o x1h9r5lt x1jfb8zj xv2umb2 x1beo9mf xaigb6o x12ejxvf x3igimt xarpa2k xedcshv x1lytzrv x1t2pt76 x7ja8zs x1qrby5j"
-                date = r.find('span', {'class':date_tag}).get_text()
-                formated_date = self.format_date(date)
-            self.dates.append(formated_date)
-            
-            
-            #@ shared post
-            share_post_tag = 'x1jx94hy x8cjs6t x1ch86jh x80vd3b xckqwgs x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xfh8nwu xoqspk4 x12v9rci x138vmkv x6ikm8r x10wlt62 x16n37ib xq8finb'     
-            shared_post = r.find('div', {'class':share_post_tag})
-            
+            #@ SHARED POST
+            shared_post = self.get_shared_post(r)
             if shared_post is not None:
                 
                 #@ shared post_url
@@ -445,58 +431,31 @@ class FacebookScraper:
                 shared_user_id, shared_username = self.get_user(shared_post)         
                 
                 #@ shared text
-                shared_text_element = shared_post.find('div',{'class':'x1iorvi4 x1pi30zi x1l90r2v x1swvt13'})
-                if shared_text_element is not None:
-                    shared_text = shared_text_element.get_text().strip()
-                else:
-                    shared_text = 'no text'
-                
-                # #@ shared date 
-                date_index = self.get_date_index(shared_post)
-                
-                # shared_date_element = page.find('span', {'id':str(date_index)})
-                shared_date_element = page.find('text', {'id':str(date_index)})
-                if shared_date_element is not None:
-                    shared_date = date_element.text.strip()
-                    # self.logger.info("shared_date: ", shared_date.strip())
-                    shared_formated_date = self.format_date(shared_date)
-                else:
-                    shared_formated_date = 'None' 
+                shared_text = self.get_shared_text(shared_post)
+                 
+                #@ shared date
+                date_string = self.get_date_string(r, page) 
+                shared_formatted_date = self.format_date(date_string)
                     
                     
                 self.shared_post_urls.append(shared_post_url)
                 self.shared_user_ids.append(shared_user_id)
                 self.shared_usernames.append(shared_username)
                 self.shared_texts.append(shared_text)
-                self.shared_dates.append(shared_formated_date)
+                self.shared_dates.append(shared_formatted_date)
                 
             
             else:
-                self.shared_user_ids.append('None')
-                self.shared_usernames.append('None')
-                self.shared_texts.append('None')
-                self.shared_dates.append('None')
-                self.shared_post_urls.append('None')
+                self.shared_user_ids.append('')
+                self.shared_usernames.append('')
+                self.shared_texts.append('')
+                self.shared_dates.append('')
+                self.shared_post_urls.append('')
                 
             
-            #@ images
-            image_tag='xz74otr x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3'
-            image_element=r.find_all('img', {'class':image_tag})
-            
-            image_tag1='x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3 xl1xv1r'
-            image_element1=r.find_all('img', {'class':image_tag1})
-            
-
-            temp_images = []
-            if image_element is not None:
-                for image in image_element:
-                    temp_images.append(image['src'])
-                    
-            if image_element1 is not None:
-                for image in image_element1:
-                    temp_images.append(image['src'])
-                    
-            self.images.append(temp_images)
+            #@ IMAGE
+            images = self.get_images(page)       
+            self.images.append(images)
             
             
         df = pd.DataFrame({
@@ -516,18 +475,20 @@ class FacebookScraper:
 
         return df   
             
-    def scrape_group(self, group_id):
-        page_source = self.get_source(group_id, credentials='credentials.txt', num_posts=10) 
+    def scrape_group(self, group_id, num_posts=10):
+        page_source = self.get_source(group_id, num_posts=num_posts) 
         self.close()
         df = self.extract_data(page_source)
-        self.write_csv(df, f"test_{group_id}.csv")
+        self.logger.info(f"Done")
+        self.write_csv(df, f"group_{group_id}_{len(df)}.csv")
+        return df
         
-    def scrape_groups(self, group_ids:list):
+    def scrape_groups(self, group_ids:list, num_posts=10):
         for group_id in group_ids:
-            page_source = self.get_source(group_id, credentials='credentials.txt', num_posts=10) 
+            page_source = self.get_source(group_id, num_posts=num_posts) 
             df = self.extract_data(page_source)
             self.logger.info(f"Done, write to csv {group_id}")
-            self.write_csv(df, f"test_{group_id}.csv")
+            self.write_csv(df, f"group_{group_id}_{len(df)}.csv")
             
         self.close()
     
