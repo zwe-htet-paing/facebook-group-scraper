@@ -38,4 +38,35 @@ To get started with the Facebook scraper, follow these steps:
 
 ## Usage
 
-`poetry run python main.py`
+### Test
+
+To run the test, change `group_id` in `main.py`.
+
+Then use the following command:
+
+```bash
+poetry run python main.py
+```
+
+
+Make sure to check the output CSV file after running the test.
+
+### Run
+
+To run the scraper, follow these steps:
+
+1. Adjust parameters in nayar_scraper.py:
+
+    - `resume`: Set to True to resume groups.
+    - `posts_lookup`: Specify the number of posts to look up in each group.
+    - `date_string`: Set the date of posts you want to retrieve.
+    - `extra_date_list`: Provide a list of extra dates you want to include.
+    - `credentials`: Add your Facebook credentials.
+    - `driver_location`: Specify the location of the Chrome driver.
+    - `output_path`: The ouput folder path.
+    
+2. Run the scraper using the command:
+
+    ```bash
+    ./run.sh
+    ```

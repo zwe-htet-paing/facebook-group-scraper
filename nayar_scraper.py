@@ -128,6 +128,7 @@ if __name__ == "__main__":
     output_path="./data/downloads"
     
     resume = False
+    posts_lookup = 10
     
     # handle resume or not
     if resume == False and os.path.exists("./data/done.txt"):
@@ -141,7 +142,7 @@ if __name__ == "__main__":
         done = list()
     
     # Take care of download path
-    date_string = "2023-12-05"
+    date_string = "2023-12-17"
     folder_path = Path(os.path.join(output_path, date_string))
     folder_path.mkdir(exist_ok=True)
     
@@ -163,7 +164,7 @@ if __name__ == "__main__":
     fb_scraper = FacebookScraper(credentials, driver_location)
     
     # Main loop
-    for group_id in list(group_dict.keys())[:2]: # limit to 10 groups
+    for group_id in list(group_dict.keys()): # [:10] limit to 10 groups
         logger.info(f"{'*' * 40}")
         if str(group_id) in done:
             logger.info(f"Group ID: {group_id} already done... ")
@@ -172,7 +173,7 @@ if __name__ == "__main__":
             logger.info(f"{'*'*6} Group ID: {group_id} {'*'*6}")
         start_time = time.time()
         # Get target page_source
-        page_source = fb_scraper.get_source(group_id, num_posts=5)
+        page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup)
         # Extract data from page_source
         df = fb_scraper.extract_data(page_source)
         # Preprocess data
