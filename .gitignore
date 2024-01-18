@@ -6,3 +6,4 @@ dist
 *.csv
 *.txt
 data/
+*.log
