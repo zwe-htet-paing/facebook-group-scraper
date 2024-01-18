@@ -167,8 +167,10 @@ class FacebookScraper:
     
     @staticmethod
     def format_date(date_string):
-        formatted_date = parse_datetime(date_string)
+        if date_string is None:
+            return None
         
+        formatted_date = parse_datetime(date_string)
         return formatted_date
     
     def login(self, credentials, driver_location):
@@ -176,21 +178,31 @@ class FacebookScraper:
         with open(credentials) as file:
             self.EMAIL = file.readline().split('"')[1]
             self.PASSWORD = file.readline().split('"')[1]
+        
+        try:
+            self.logger.info("Starting browser...")
+            self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
+            self.browser.get("http://facebook.com")
+            self.browser.maximize_window()
+            wait = WebDriverWait(self.browser, 30)
+
+            self.logger.info("Logging in...")
+            email_field = wait.until(EC.visibility_of_element_located((By.NAME, 'email')))
+            email_field.send_keys(self.EMAIL)
+            pass_field = wait.until(EC.visibility_of_element_located((By.NAME, 'pass')))
+            pass_field.send_keys(self.PASSWORD)
+            pass_field.send_keys(Keys.RETURN)
             
-        self.logger.info("Starting browser...")
-        self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
-        self.browser.get("http://facebook.com")
-        self.browser.maximize_window()
-        wait = WebDriverWait(self.browser, 30)
-
-        self.logger.info("Logging in...")
-        email_field = wait.until(EC.visibility_of_element_located((By.NAME, 'email')))
-        email_field.send_keys(self.EMAIL)
-        pass_field = wait.until(EC.visibility_of_element_located((By.NAME, 'pass')))
-        pass_field.send_keys(self.PASSWORD)
-        pass_field.send_keys(Keys.RETURN)
-
-        time.sleep(3)
+            # time.sleep(3)
+            # Wait for the login process to complete
+            wait.until(EC.url_contains("facebook.com"))
+            
+            
+        except Exception as e:
+            self.logger.error(f"An error occurred during login: {e}")
+            raise
+        
+        self.logger.info("Login successful!")
         
     def close(self):
         self.logger.info("Closing browser")
@@ -249,6 +261,8 @@ class FacebookScraper:
             if last_post:
                 self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
                 time.sleep(2)
+            else:
+                pass
 
             # process check
             numPosts = len(postsList)
@@ -292,8 +306,9 @@ class FacebookScraper:
             
         else:
             #@ anonymous user
-            user_element = r.find('div', {'class':user_tag})
-            username = user_element.get_text().strip()
+            # user_element = r.find('div', {'class':user_tag})
+            # username = user_element.get_text().strip()
+            username = 'None'
             user_id = 'None'
             
         return user_id, username

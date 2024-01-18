@@ -41,7 +41,7 @@ def extract_post_id(url):
 
 def preprocess_df(df:pd.DataFrame, date_list:list):
     # Remove invalid links
-    df = df[(df['post_url'] != '#') & (df['shared_post_url'] != '#')]
+    df = df[(df['post_url'] != '#') & (df['shared_post_url'] != '#') & (df['time'] != None)]
     df_clean = df.copy()
     
     # Convert the 'time' to datetime format
