@@ -469,7 +469,7 @@ class FacebookScraper:
                 
             
             #@ IMAGE
-            images = self.get_images(page)       
+            images = self.get_images(r)       
             self.images.append(images)
             
             
