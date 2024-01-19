@@ -8,6 +8,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import StaleElementReferenceException
+
 
 # other necessary ones
 import urllib.request
@@ -257,12 +259,27 @@ class FacebookScraper:
             if postsList:
                 last_post = postsList[-1]
 
-            # Scroll to the last post element
-            if last_post:
-                self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-                time.sleep(2)
+                # Scroll to the last post element
+                try:
+                    # Using WebDriverWait to wait until the element is clickable
+                    wait = WebDriverWait(self.browser, 10)
+                    wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")))
+
+                    self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+                    time.sleep(2)
+                    
+                except StaleElementReferenceException:
+                    # Handle StaleElementReferenceException by re-finding the last post element
+                    print("StaleElementReferenceException. Retrying...")
+                    postsList = self.browser.find_elements(By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")
+                    if postsList:
+                        last_post = postsList[-1]
+                        self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+                        
+                        time.sleep(2)
+            
             else:
-                pass
+                print("No posts found.")
 
             # process check
             numPosts = len(postsList)
