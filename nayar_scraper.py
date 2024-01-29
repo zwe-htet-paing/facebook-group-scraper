@@ -166,11 +166,11 @@ if __name__ == "__main__":
     
     # Initialize FacebokScraper
     #######################
-    has_cookie = True # default is True
+    has_cookie = False
     #######################
     credentials = 'credentials.txt'
     driver_location="../chromedriver-linux64/chromedriver"
-    fb_scraper = FacebookScraper(credentials, driver_location, cookies=has_cookie)
+    fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=has_cookie)
     
     # Main loop
     for group_id in list(group_dict.keys()): # [:10] limit to 10 groups
