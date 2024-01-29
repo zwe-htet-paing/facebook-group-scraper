@@ -14,7 +14,7 @@ except Exception as e:
     print(f"An unexpected error occurred during login: {e}")
     sys.exit()  # Exit the script if an exception occurs
 else:        
-    fb_scraper.scrape_group(group_id)
+    fb_scraper.scrape_group(group_id, num_posts=5)
     # fb_scraper.scrape_groups(group_ids=group_ids)
 
 elasped_time = (time.time() - start_time) / 60

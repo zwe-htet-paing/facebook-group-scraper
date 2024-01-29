@@ -7,3 +7,4 @@ dist
 *.txt
 data/
 *.log
+*.pkl

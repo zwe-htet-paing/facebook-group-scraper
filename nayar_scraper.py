@@ -127,8 +127,10 @@ if __name__ == "__main__":
     group_file_path = "./data/nayar_public_active_groups.csv"
     output_path="./data/downloads"
     
+    #########################
     resume = False
-    posts_lookup = 10
+    posts_lookup = 100
+    #########################
     
     # handle resume or not
     if resume == False and os.path.exists("./data/done.txt"):
@@ -142,7 +144,9 @@ if __name__ == "__main__":
         done = list()
     
     # Take care of download path
+    ##############################
     date_string = "2023-12-17"
+    ##############################
     folder_path = Path(os.path.join(output_path, date_string))
     folder_path.mkdir(exist_ok=True)
     
@@ -150,7 +154,9 @@ if __name__ == "__main__":
     date_list = []
     date_list.append(date_string)
     
+    ##############################
     extra_date_list = None
+    ##############################
     if extra_date_list is not None:
         date_list += extra_date_list
     
@@ -159,9 +165,12 @@ if __name__ == "__main__":
     # print(group_dict)
     
     # Initialize FacebokScraper
+    #######################
+    has_cookie = True # default is True
+    #######################
     credentials = 'credentials.txt'
     driver_location="../chromedriver-linux64/chromedriver"
-    fb_scraper = FacebookScraper(credentials, driver_location)
+    fb_scraper = FacebookScraper(credentials, driver_location, cookies=has_cookie)
     
     # Main loop
     for group_id in list(group_dict.keys()): # [:10] limit to 10 groups

@@ -20,6 +20,8 @@ import time
 import re
 import datetime
 import logging
+import pickle
+import sys
 
 from custom_utils import parse_datetime
 
@@ -175,13 +177,48 @@ class FacebookScraper:
         formatted_date = parse_datetime(date_string)
         return formatted_date
     
-    def login(self, credentials, driver_location):
-        #@ credentials
-        with open(credentials) as file:
-            self.EMAIL = file.readline().split('"')[1]
-            self.PASSWORD = file.readline().split('"')[1]
-        
+    @staticmethod
+    def save_cookies(browser, filename):
+        pickle.dump(browser.get_cookies(), open(filename, 'wb'))
+        print("cookies saved successfully")
+
+    def add_cookies(self, filename):
+        cookies = pickle.load(open(filename, 'rb'))
+        for cookie in cookies:
+            self.browser.add_cookie(cookie)
+        print("cookies added successfully")
+
+    def check_login(self):
+        # Locate the div using its aria-label and class attributes
+        div_locator = (By.XPATH, '//div[@aria-label="Create a post" and @class="x6s0dn4 x78zum5 x1a02dak x1a8lsjc x1pi30zi x1swvt13 xz9dl7a"]')
+
+        # Wait for the element to be present (adjust the timeout as needed)
         try:
+            element = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located(div_locator))
+        except:
+            self.logger.error("Login unsuccessful...")
+            sys.exit(0)
+
+        self.logger.info("Login successful")
+
+
+    def login(self, credentials, driver_location, cookies=True):
+
+        if cookies:
+            self.logger.info("Starting browser using cookies...")
+            self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
+            # Delete a cookie with name 'test1'
+            self.browser.delete_all_cookies()
+            self.browser.get("http://facebook.com")
+            self.add_cookies('user_cookies.pkl')
+            self.browser.refresh() #refresh the page
+            self.check_login()
+        else:
+            #@ credentials
+            with open(credentials) as file:
+                self.EMAIL = file.readline().split('"')[1]
+                self.PASSWORD = file.readline().split('"')[1]
+            
             self.logger.info("Starting browser...")
             self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
             self.browser.get("http://facebook.com")
@@ -198,13 +235,8 @@ class FacebookScraper:
             # time.sleep(3)
             # Wait for the login process to complete
             wait.until(EC.url_contains("facebook.com"))
-            
-            
-        except Exception as e:
-            self.logger.error(f"An error occurred during login: {e}")
-            raise
-        
-        self.logger.info("Login successful!")
+            self.check_login()
+            self.save_cookies(self.browser, 'user_cookies.pkl')
         
     def close(self):
         self.logger.info("Closing browser")
