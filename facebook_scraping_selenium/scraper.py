@@ -265,6 +265,8 @@ class FacebookScraper:
 
         while switch:
             count += 1
+            postsList = None
+            last_post = None
             
             self.date_handover(self.browser)
             self.openSeeMore(self.browser)
@@ -288,6 +290,11 @@ class FacebookScraper:
             
             # Get the last post element
             postsList = self.browser.find_elements(By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")
+            # if postsList:
+            #     last_post = postsList[-1]
+            #     self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+            #     time.sleep(2)
+
             if postsList:
                 last_post = postsList[-1]
 
