@@ -9,7 +9,7 @@ group_ids = ['1605099990009060']
 start_time = time.time()
 
 try:
-    fb_scraper = FacebookScraper(credentials='credentials.txt')
+    fb_scraper = FacebookScraper(credentials='credentials.txt', use_cookies=False)
 except Exception as e:
     print(f"An unexpected error occurred during login: {e}")
     sys.exit()  # Exit the script if an exception occurs

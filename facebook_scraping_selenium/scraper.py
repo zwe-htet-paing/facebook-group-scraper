@@ -26,7 +26,7 @@ import sys
 from custom_utils import parse_datetime
 
 class FacebookScraper:
-    def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver"):
+    def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False):
         #@ set options
         self.chrome_option = Options()
         self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode 
@@ -53,7 +53,7 @@ class FacebookScraper:
         self.logger.addHandler(console)
         
         # start login
-        self.login(credentials=credentials, driver_location=driver_location)
+        self.login(credentials=credentials, driver_location=driver_location, cookies=use_cookies)
     
     @staticmethod
     def openSeeMore(browser):
