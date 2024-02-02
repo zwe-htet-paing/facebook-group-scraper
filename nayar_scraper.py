@@ -173,13 +173,13 @@ if __name__ == "__main__":
     fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=has_cookie)
     
     # Main loop
-    for group_id in list(group_dict.keys()): # [:10] limit to 10 groups
+    for idx, group_id in enumerate(list(group_dict.keys())): # [:10] limit to 10 groups
         logger.info(f"{'*' * 40}")
         if str(group_id) in done:
-            logger.info(f"Group ID: {group_id} already done... ")
+            logger.info(f"Group ID {idx+1}: {group_id} already done... ")
             continue
         else:
-            logger.info(f"{'*'*6} Group ID: {group_id} {'*'*6}")
+            logger.info(f"{'*'*6} Group ID {idx+1}: {group_id} {'*'*6}")
         start_time = time.time()
         # Get target page_source
         page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup)
