@@ -29,7 +29,7 @@ class FacebookScraper:
     def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False):
         #@ set options
         self.chrome_option = Options()
-        self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode 
+        # self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode 
         self.chrome_option.add_argument("--disable-notifications")
         self.chrome_option.add_argument("--disable-infobars")
         self.chrome_option.add_argument("--disable-extensions")
@@ -58,7 +58,8 @@ class FacebookScraper:
     @staticmethod
     def openSeeMore(browser):
         
-        see_more_tag = 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
+        # see_more_tag = 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
+        see_more_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
         xpath_exp = "//div[contains(@class,'{}') and contains(text(), 'See more')]"
         readMore = browser.find_elements(By.XPATH, xpath_exp.format(see_more_tag))
         
@@ -87,7 +88,8 @@ class FacebookScraper:
     @staticmethod 
     def date_handover(browser):
         # date_tag = 'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'
-        date_tag = "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
+        # date_tag = "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
+        date_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
         xpath_exp = "//a[@class='{}']"
         date_elements = browser.find_elements(By.XPATH, xpath_exp.format(date_tag))
         # date_elements = WebDriverWait(browser, 30).until(EC.presence_of_all_elements_located((By.XPATH, xpath_exp.format(date_tag))))
@@ -326,7 +328,7 @@ class FacebookScraper:
             self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
 
             if numPosts > old_numPosts:
-                old_numPosts = num_posts
+                old_numPosts = numPosts
             else:
                 error_count += 1
                 self.logger.info(f"Error Count:  {error_count}")
@@ -348,14 +350,14 @@ class FacebookScraper:
     
     @staticmethod
     def get_post_url(r):    
-        posts_tag = 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
+        posts_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
         post_url = r.find('a', {'class':posts_tag}).get('href')
         
         return post_url
     
     @staticmethod
     def get_user(r):    
-        user_tag = 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
+        user_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
         user_element = r.find('a',{'class':user_tag})
         
         #@ username
@@ -412,7 +414,7 @@ class FacebookScraper:
     @staticmethod
     def get_date_string(r, page):
         # 1. Using <a> tag
-        date_tag = "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
+        date_tag = "x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
         date_element = r.find('a',{'class':date_tag})
         date_string = date_element.get_text().strip()
         # print(len(date_string))
