@@ -262,6 +262,7 @@ class FacebookScraper:
         switch = True
         old_numPosts = 0
         specifiedNumber = num_posts # number of posts to get
+        error_count = 0
 
         while switch:
             count += 1
@@ -324,8 +325,14 @@ class FacebookScraper:
             numPosts = len(postsList)
             self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
 
+            if numPosts > old_numPosts:
+                old_numPosts = num_posts
+            else:
+                error_count += 1
+                self.logger.info(f"Error Count:  {error_count}")
+
             # termination condition
-            if numPosts >= specifiedNumber:
+            if (numPosts >= specifiedNumber) or error_count > 4:
                 switch = False
                 
                 self.date_handover(self.browser)
