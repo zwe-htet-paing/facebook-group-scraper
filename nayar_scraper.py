@@ -129,7 +129,7 @@ if __name__ == "__main__":
     
     #########################
     resume = False
-    posts_lookup = 100
+    posts_lookup = 150
     #########################
     
     # handle resume or not
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     
     # Take care of download path
     ##############################
-    date_string = "2023-12-17"
+    date_string = "2024-02-01"
     ##############################
     folder_path = Path(os.path.join(output_path, date_string))
     folder_path.mkdir(exist_ok=True)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     
     # Initialize FacebokScraper
     #######################
-    has_cookie = False
+    has_cookie = True
     #######################
     credentials = 'credentials.txt'
     driver_location="../chromedriver-linux64/chromedriver"

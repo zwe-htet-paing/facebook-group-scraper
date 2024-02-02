@@ -381,14 +381,14 @@ class FacebookScraper:
         text_tag = 'x193iq5w xeuugli x13faqbe x1vvkbs x10flsy6 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x41vudc x6prxxf xvq8zen xo1l8bm xzsf02u x1yc453h'
         text_element = r.find('span',{'class':text_tag})        
         if text_element is not None:
-            text = text_element.get_text().strip()
+            text = text_element.get_text('\n').strip()
         else:
             text_element = r.find('div',{'class':'x1iorvi4 x1pi30zi x1l90r2v x1swvt13'})
             if text_element is not None:
-                text = text_element.get_text().strip()
+                text = text_element.get_text('\n').strip()
             else:
                 text_element = r.find('div', {'class':'x6s0dn4 x78zum5 xdt5ytf x5yr21d xl56j7k x10l6tqk x17qophe x13vifvy xh8yej3'})
-                text = text_element.get_text().strip() if text_element is not None else ''
+                text = text_element.get_text('\n').strip() if text_element is not None else ''
         
         return text
     
@@ -403,7 +403,7 @@ class FacebookScraper:
     def get_shared_text(r):
         shared_text_element = r.find('div',{'class':'x1iorvi4 x1pi30zi x1l90r2v x1swvt13'})
         if shared_text_element is not None:
-            shared_text = shared_text_element.get_text().strip()
+            shared_text = shared_text_element.get_text('\n').strip()
         else:
             shared_text = ''
             
