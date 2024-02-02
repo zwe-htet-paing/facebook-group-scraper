@@ -24,6 +24,7 @@ import pickle
 import sys
 
 from custom_utils import parse_datetime
+import utils.tag_config as tag
 
 class FacebookScraper:
     def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False):
@@ -57,11 +58,9 @@ class FacebookScraper:
     
     @staticmethod
     def openSeeMore(browser):
-        
-        # see_more_tag = 'x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
-        see_more_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
+        # see_more_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
         xpath_exp = "//div[contains(@class,'{}') and contains(text(), 'See more')]"
-        readMore = browser.find_elements(By.XPATH, xpath_exp.format(see_more_tag))
+        readMore = browser.find_elements(By.XPATH, xpath_exp.format(tag.see_more_tag))
         
         if len(readMore) > 0:    
             count = 0
@@ -88,10 +87,9 @@ class FacebookScraper:
     @staticmethod 
     def date_handover(browser):
         # date_tag = 'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'
-        # date_tag = "x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
-        date_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
+        # date_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
         xpath_exp = "//a[@class='{}']"
-        date_elements = browser.find_elements(By.XPATH, xpath_exp.format(date_tag))
+        date_elements = browser.find_elements(By.XPATH, xpath_exp.format(tag.date_tag))
         # date_elements = WebDriverWait(browser, 30).until(EC.presence_of_all_elements_located((By.XPATH, xpath_exp.format(date_tag))))
 
         # wait = WebDriverWait(browser, 30)
@@ -188,11 +186,12 @@ class FacebookScraper:
         cookies = pickle.load(open(filename, 'rb'))
         for cookie in cookies:
             self.browser.add_cookie(cookie)
-        print("cookies added successfully")
+        self.logger.info("Cookies added successfully")
 
     def check_login(self):
         # Locate the div using its aria-label and class attributes
-        div_locator = (By.XPATH, '//div[@aria-label="Create a post" and @class="x6s0dn4 x78zum5 x1a02dak x1a8lsjc x1pi30zi x1swvt13 xz9dl7a"]')
+        # create_post_tag = "x6s0dn4 x78zum5 x1a02dak x1a8lsjc x1pi30zi x1swvt13 xz9dl7a"
+        div_locator = (By.XPATH, '//div[@aria-label="Create a post" and @class="{}"]'.format(tag.create_post_tag))
 
         # Wait for the element to be present (adjust the timeout as needed)
         try:
@@ -292,7 +291,7 @@ class FacebookScraper:
             #     switch = False
             
             # Get the last post element
-            postsList = self.browser.find_elements(By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")
+            postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
             # if postsList:
             #     last_post = postsList[-1]
             #     self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
@@ -305,7 +304,7 @@ class FacebookScraper:
                 try:
                     # Using WebDriverWait to wait until the element is clickable
                     wait = WebDriverWait(self.browser, 10)
-                    wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")))
+                    wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))))
 
                     self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
                     time.sleep(2)
@@ -313,7 +312,7 @@ class FacebookScraper:
                 except StaleElementReferenceException:
                     # Handle StaleElementReferenceException by re-finding the last post element
                     print("StaleElementReferenceException. Retrying...")
-                    postsList = self.browser.find_elements(By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")
+                    postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format()(tag.post_list_tag))
                     if postsList:
                         last_post = postsList[-1]
                         self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
@@ -350,15 +349,15 @@ class FacebookScraper:
     
     @staticmethod
     def get_post_url(r):    
-        posts_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
-        post_url = r.find('a', {'class':posts_tag}).get('href')
+        # posts_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
+        post_url = r.find('a', {'class':tag.posts_tag}).get('href')
         
         return post_url
     
     @staticmethod
     def get_user(r):    
-        user_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
-        user_element = r.find('a',{'class':user_tag})
+        # user_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
+        user_element = r.find('a',{'class':tag.user_tag})
         
         #@ username
         if user_element is not None:
@@ -380,30 +379,30 @@ class FacebookScraper:
     
     @staticmethod
     def get_text(r):
-        text_tag = 'x193iq5w xeuugli x13faqbe x1vvkbs x10flsy6 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x41vudc x6prxxf xvq8zen xo1l8bm xzsf02u x1yc453h'
-        text_element = r.find('span',{'class':text_tag})        
+        # text_tag = 'x193iq5w xeuugli x13faqbe x1vvkbs x10flsy6 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x41vudc x6prxxf xvq8zen xo1l8bm xzsf02u x1yc453h'
+        text_element = r.find('span',{'class':tag.text_tag})        
         if text_element is not None:
             text = text_element.get_text('\n').strip()
         else:
-            text_element = r.find('div',{'class':'x1iorvi4 x1pi30zi x1l90r2v x1swvt13'})
+            text_element = r.find('div',{'class':tag.text_tag1})
             if text_element is not None:
                 text = text_element.get_text('\n').strip()
             else:
-                text_element = r.find('div', {'class':'x6s0dn4 x78zum5 xdt5ytf x5yr21d xl56j7k x10l6tqk x17qophe x13vifvy xh8yej3'})
+                text_element = r.find('div', {'class':tag.text_tag2})
                 text = text_element.get_text('\n').strip() if text_element is not None else ''
         
         return text
     
     @staticmethod
     def get_shared_post(r):
-        share_post_tag = 'x1jx94hy x8cjs6t x1ch86jh x80vd3b xckqwgs x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xfh8nwu xoqspk4 x12v9rci x138vmkv x6ikm8r x10wlt62 x16n37ib xq8finb'     
-        shared_post = r.find('div', {'class':share_post_tag})
+        # share_post_tag = 'x1jx94hy x8cjs6t x1ch86jh x80vd3b xckqwgs x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xfh8nwu xoqspk4 x12v9rci x138vmkv x6ikm8r x10wlt62 x16n37ib xq8finb'     
+        shared_post = r.find('div', {'class':tag.shared_post_tag})
         
         return shared_post
     
     @staticmethod
     def get_shared_text(r):
-        shared_text_element = r.find('div',{'class':'x1iorvi4 x1pi30zi x1l90r2v x1swvt13'})
+        shared_text_element = r.find('div',{'class':tag.shared_text_tag})
         if shared_text_element is not None:
             shared_text = shared_text_element.get_text('\n').strip()
         else:
@@ -414,13 +413,13 @@ class FacebookScraper:
     @staticmethod
     def get_date_string(r, page):
         # 1. Using <a> tag
-        date_tag = "x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
-        date_element = r.find('a',{'class':date_tag})
+        # date_tag = "x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
+        date_element = r.find('a',{'class':tag.date_tag})
         date_string = date_element.get_text().strip()
         # print(len(date_string))
         
         if len(date_string) == 0:
-            span_element = date_element.find('span', {'class':'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'})
+            span_element = date_element.find('span', {'class':tag.span_date_tag})
             if span_element is not None:
                 # 2. Using <use> tag
                 date_index = span_element.find('use')['xlink:href'][1:]
@@ -441,11 +440,11 @@ class FacebookScraper:
     @staticmethod
     def get_images(r):
         #@ images
-        image_tag='xz74otr x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3'
-        image_element=r.find_all('img', {'class':image_tag})
+        # image_tag='xz74otr x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3'
+        image_element=r.find_all('img', {'class':tag.image_tag})
         
-        image_tag1='x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3 xl1xv1r'
-        image_element1=r.find_all('img', {'class':image_tag1})
+        # image_tag1='x1ey2m1c xds687c x5yr21d x10l6tqk x17qophe x13vifvy xh8yej3 xl1xv1r'
+        image_element1=r.find_all('img', {'class':tag.image_tag1})
         
 
         temp_images = []
@@ -462,7 +461,7 @@ class FacebookScraper:
     def extract_data(self, page_source):    
         page = bs(page_source, 'lxml')
         group_posts = page.find_all('div', {
-            'class':'x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z'
+            'class': tag.post_list_tag
                                     })
         
         #@ entities
