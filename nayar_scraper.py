@@ -35,7 +35,7 @@ def extract_post_id(url):
         # print("Post ID:", post_id)
         return post_id
     else:
-        print("URL format doesn't match the expected pattern.")
+        # print("URL format doesn't match the expected pattern.")
         return None
 
 
@@ -144,6 +144,8 @@ if __name__ == "__main__":
         done = list()
     
     # Take care of download path
+    # current_time = datetime.now()
+    # date_string = current_time.strftime("%Y-%m-%d")
     ##############################
     date_string = "2024-02-01"
     ##############################
@@ -228,3 +230,4 @@ if __name__ == "__main__":
     # Calculate elapsed time in minutes
     elapsed_time = (end_program - start_program) / 60
     logger.info(f"Elapsed Time: {elapsed_time:.2f} minutes")
+    

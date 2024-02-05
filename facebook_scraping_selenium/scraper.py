@@ -320,7 +320,7 @@ class FacebookScraper:
                         time.sleep(2)
             
             else:
-                print("No posts found.")
+                self.logger.info("No posts found.")
 
             # process check
             numPosts = len(postsList)
@@ -328,12 +328,13 @@ class FacebookScraper:
 
             if numPosts > old_numPosts:
                 old_numPosts = numPosts
+                page_source = self.browser.page_source
             else:
-                error_count += 1
-                self.logger.info(f"Error Count:  {error_count}")
+                self.logger.info(f"Error Scrolling...")
+                return page_source
 
             # termination condition
-            if (numPosts >= specifiedNumber) or error_count > 4:
+            if (numPosts >= specifiedNumber):
                 switch = False
                 
                 self.date_handover(self.browser)
