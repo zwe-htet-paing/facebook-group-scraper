@@ -1,0 +1,15 @@
+__pycache__
+.pytest_cache
+.venv
+.gitignore
+
+*.ipynb
+*.pkl
+
+/tests
+/dist
+/notebook
+/data/downloads
+
+poetry.lock
+pyproject.toml
