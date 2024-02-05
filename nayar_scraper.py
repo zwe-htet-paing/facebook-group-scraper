@@ -171,7 +171,8 @@ if __name__ == "__main__":
     has_cookie = True
     #######################
     credentials = 'credentials.txt'
-    driver_location="../chromedriver-linux64/chromedriver"
+    # driver_location = '/usr/bin/chromedriver' # docker
+    driver_location="../chromedriver-linux64/chromedriver" # local
     fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=has_cookie)
     
     # Main loop

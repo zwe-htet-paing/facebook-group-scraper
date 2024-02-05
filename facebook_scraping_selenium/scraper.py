@@ -36,9 +36,9 @@ class FacebookScraper:
         self.chrome_option.add_argument("--disable-extensions")
         self.chrome_option.add_argument("start-maximized")
         
-        # self.chrome_option.add_argument("--disable-gpu")  # Disable GPU acceleration
-        # self.chrome_option.add_argument('--no-sandbox')
-        # self.chrome_option.add_argument('--disable-dev-shm-usage')
+        self.chrome_option.add_argument("--disable-gpu")  # Disable GPU acceleration
+        self.chrome_option.add_argument('--no-sandbox')
+        self.chrome_option.add_argument('--disable-dev-shm-usage')
         
         #@ custom logger
         self.logger = logging.getLogger("FacebookScraper")

@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 # Run script.py when the container launches
-CMD ["python", "nayar_scraper.py"]
+CMD ["python3", "main.py"]

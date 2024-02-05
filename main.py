@@ -8,8 +8,10 @@ group_ids = ['1605099990009060']
 
 start_time = time.time()
 
+driver_location = '/usr/bin/chromedriver' # docker
+# driver_location = "../chromedriver-linux64/chromedriver" # local
 try:
-    fb_scraper = FacebookScraper(credentials='credentials.txt', use_cookies=True)
+    fb_scraper = FacebookScraper(credentials='credentials.txt', driver_location=driver_location, use_cookies=False)
 except Exception as e:
     print(f"An unexpected error occurred during login: {e}")
     sys.exit()  # Exit the script if an exception occurs
