@@ -162,6 +162,8 @@ def run(
     # raw data folder
     os.makedirs(f'{root_dir}/data/raw', exist_ok=True)
     raw_data_dir = f"{root_dir}/data/raw/{date_string}"
+    os.makedirs(raw_data_dir, exist_ok=True)
+
     
     # Take care of download path
     if date_string is None:
