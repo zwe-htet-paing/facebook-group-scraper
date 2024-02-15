@@ -193,7 +193,7 @@ def run(
     group_dict = get_group_dict(root_dir+group_file_path)
     
     # Initialize FacebokScraper
-    fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=use_cookie)
+    fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=use_cookie, raw_data_dir=raw_data_dir)
     
     # Main loop
     for idx, group_id in enumerate(list(group_dict.keys())):  # [:10] limit to 10 groups
@@ -205,7 +205,7 @@ def run(
             logger.info(f"{'*'*6} Group ID {idx+1}: {group_id} {'*'*6}")
         start_time = time.time()
         # Get target page_source
-        page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup, raw_data_dir=raw_data_dir)
+        page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup)
         # Extract data from page_source
         # df = fb_scraper.extract_data(page_source)
         df = fb_scraper.extract_data(group_id=group_id)
