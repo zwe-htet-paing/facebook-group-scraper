@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  fb_crawler1:
+    image:  "fb_crawler"
+    container_name: "fb_crawler1"
+    command: ["python3", "nayar_scraper.py", "--driver_location", "docker"]
+    volumes:
+      - /home/oliver/Desktop/PROMES/web_crawler/facebook-scraping-selenium/data/raw:/app/data/raw
+      - /home/oliver/Desktop/PROMES/web_crawler/facebook-scraping-selenium/data/downloads:/app/data/downloads
+      - /home/oliver/Desktop/PROMES/web_crawler/facebook-scraping-selenium/data/checkpoint:/app/data/checkpoint
+
+  # fb_crawler2:
+  #   image: "fb_crawler"
+  #   container_name: "fb_crawler2"
+  #   volumes:
+  #     - /data/downloads:/app/data/downloads
+  

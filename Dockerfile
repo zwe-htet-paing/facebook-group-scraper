@@ -15,5 +15,8 @@ COPY . /app/
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
-# Run script.py when the container launches
-CMD ["python3", "main.py"]
+# # Run script.py when the container launches
+# CMD ["python3", "nayar_scraper.py"]
+
+# Run a command that doesn't exit
+CMD ["tail", "-f", "/dev/null"]

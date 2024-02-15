@@ -27,7 +27,7 @@ from custom_utils import parse_datetime
 import utils.tag_config as tag
 
 class FacebookScraper:
-    def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False):
+    def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False, raw_data_dir="data/raw"):
         #@ set options
         self.chrome_option = Options()
         self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode 
@@ -55,6 +55,8 @@ class FacebookScraper:
         
         # start login
         self.login(credentials=credentials, driver_location=driver_location, cookies=use_cookies)
+
+        self.raw_data_dir = raw_data_dir
     
     @staticmethod
     def openSeeMore(browser):
@@ -129,45 +131,44 @@ class FacebookScraper:
             # print('[INFO] got back!!!')
     
     @staticmethod
-    def archiveAtEnd(browser, reviewList):
-        browser.execute_script("window.scrollTo(0, -document.body.scrollHeight);") # scroll back to the top
-        time.sleep(10)
+    def archiveAtEnd(browser, reviewList, group_id, source_data, raw_data_dir):
+        # browser.execute_script("window.scrollTo(0, -document.body.scrollHeight);") # scroll back to the top
+        # time.sleep(10)
             
-        for idx, l in enumerate(reviewList):
-            if idx % 10 == 0:
-                if idx < 15:
-                    browser.execute_script("arguments[0].scrollIntoView();", reviewList[0])
-                else:
-                    browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx-15])
+        # for idx, l in enumerate(reviewList):
+        #     if idx % 10 == 0:
+        #         if idx < 15:
+        #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[0])
+        #         else:
+        #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx-15])
                 
-                time.sleep(1)
-                try:
-                    browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+15])
-                except:
-                    browser.execute_script("arguments[0].scrollIntoView();", reviewList[-1])
+        #         time.sleep(1)
+        #         try:
+        #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+15])
+        #         except:
+        #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[-1])
 
-                time.sleep(1)
-                browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx])
+        #         time.sleep(1)
+        #         browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx])
                 
-                for r in range(2):
-                    time.sleep(2)
-                    try:
-                        browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+5])
-                        time.sleep(2)
-                    except:
-                        browser.execute_script("arguments[0].scrollIntoView();", reviewList[-1])
-                    browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+r*3])
-                    time.sleep(3)
+        #         for r in range(2):
+        #             time.sleep(2)
+        #             try:
+        #                 browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+5])
+        #                 time.sleep(2)
+        #             except:
+        #                 browser.execute_script("arguments[0].scrollIntoView();", reviewList[-1])
+        #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+r*3])
+        #             time.sleep(3)
+
+        # source_data = browser.page_source       
+        with open(f'{raw_data_dir}/{group_id}.html',"w", encoding="utf-8") as file:
+            bs_data = bs(source_data, 'html.parser')
+            file.write(str(bs_data.prettify()))
+            print(f'written: {group_id}')
                     
-                # with open(f'{PATH}/{str(idx)}_{r}.html',"w", encoding="utf-8") as file:
-                #     source_data = browser.page_source
-                #     bs_data = bs(source_data, 'html.parser')
-                #     file.write(str(bs_data.prettify()))
-                #     print(f'written: {idx}_{r}')
-                    
-        source_data = browser.page_source
         
-        return source_data
+        # return source_data
     
     @staticmethod
     def format_date(date_string):
@@ -201,7 +202,6 @@ class FacebookScraper:
             sys.exit(0)
 
         self.logger.info("Login successful")
-
 
     def login(self, credentials, driver_location, cookies=True):
 
@@ -243,7 +243,7 @@ class FacebookScraper:
         self.logger.info("Closing browser")
         self.browser.close()
     
-    def get_source(self, target_id, num_posts=20):
+    def get_source(self, target_id, num_posts=100):
         
         # once logged in, free to open up any target page
         self.logger.info("*" * 40)
@@ -331,6 +331,7 @@ class FacebookScraper:
                 page_source = self.browser.page_source
             else:
                 self.logger.info(f"Error Scrolling...")
+                self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
                 return page_source
 
             # termination condition
@@ -344,14 +345,18 @@ class FacebookScraper:
                 
         # Get the page source after all content is loaded
         page_source = self.browser.page_source
-        # page_source = self.archiveAtEnd(browser, postsList)
+        self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
         
         return page_source
     
     @staticmethod
     def get_post_url(r):    
         # posts_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
-        post_url = r.find('a', {'class':tag.posts_tag}).get('href')
+        post_element = r.find('a', {'class':tag.posts_tag})
+        if post_element is not None:
+            post_url = post_element.get('href')
+        else:
+            post_url = None
         
         return post_url
     
@@ -383,14 +388,14 @@ class FacebookScraper:
         # text_tag = 'x193iq5w xeuugli x13faqbe x1vvkbs x10flsy6 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x x4zkp8e x41vudc x6prxxf xvq8zen xo1l8bm xzsf02u x1yc453h'
         text_element = r.find('span',{'class':tag.text_tag})        
         if text_element is not None:
-            text = text_element.get_text('\n').strip()
+            text = text_element.get_text().strip()
         else:
             text_element = r.find('div',{'class':tag.text_tag1})
             if text_element is not None:
-                text = text_element.get_text('\n').strip()
+                text = text_element.get_text().strip()
             else:
                 text_element = r.find('div', {'class':tag.text_tag2})
-                text = text_element.get_text('\n').strip() if text_element is not None else ''
+                text = text_element.get_text().strip() if text_element is not None else ''
         
         return text
     
@@ -405,7 +410,7 @@ class FacebookScraper:
     def get_shared_text(r):
         shared_text_element = r.find('div',{'class':tag.shared_text_tag})
         if shared_text_element is not None:
-            shared_text = shared_text_element.get_text('\n').strip()
+            shared_text = shared_text_element.get_text().strip()
         else:
             shared_text = ''
             
@@ -414,24 +419,34 @@ class FacebookScraper:
     @staticmethod
     def get_date_string(r, page):
         # 1. Using <a> tag
-        # date_tag = "x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm"
         date_element = r.find('a',{'class':tag.date_tag})
-        date_string = date_element.get_text().strip()
-        # print(len(date_string))
+        date_string = date_element.get_text().strip() if date_element else None
+        # print("Date element: ", date_element)
+        # print("Date string: ", date_string)
         
-        if len(date_string) == 0:
+        if (date_string == '' or date_string is None) and date_element is not None:
             span_element = date_element.find('span', {'class':tag.span_date_tag})
             if span_element is not None:
+                # print('<use> tag')
                 # 2. Using <use> tag
-                date_index = span_element.find('use')['xlink:href'][1:]
-                date_element = page.find('text', {'id':str(date_index)})
+                date_index = span_element.find('use')['xlink:href']
+                date_element = page.find('text', {'id':str(date_index[1:])})
                 if date_element is None:
+                    # print('aria-labelledby')
                     # 3. Using "aria-labelledby" attribute
                     date_index = span_element['aria-labelledby']
-                    date_element = page.find('span', {'id':str(date_index)})
+                    date_element = page.find('span', {'id':str(date_index[1:])})
+                    if date_element is None:
+                        # print('svg')
+                        # 4. Using "svg" attribute
+                        date_index = span_element.find('use')['xlink:href']
+                        svg_date_index = page.find('svg', {'id': str(date_index[1:])}).find('use')['xlink:href']
+                        # print(svg_date_index)
+                        date_element = page.find('text', {'id':str(svg_date_index[1:])})
                     
                 date_string = date_element.text if date_element is not None else None
-                
+                # print(date_string)
+        
         return date_string
     
     @staticmethod
@@ -459,8 +474,12 @@ class FacebookScraper:
                 
         return temp_images
     
-    def extract_data(self, page_source):    
-        page = bs(page_source, 'lxml')
+    def extract_data(self, page_source=None, group_id=None):    
+        # page = bs(page_source, 'lxml')
+        with open(f'{self.raw_data_dir}/{group_id}.html',"r", encoding="utf-8") as file:
+            f = file.read()
+        page = bs(f, 'lxml')
+
         group_posts = page.find_all('div', {
             'class': tag.post_list_tag
                                     })
@@ -558,7 +577,7 @@ class FacebookScraper:
     def scrape_group(self, group_id, num_posts=10):
         page_source = self.get_source(group_id, num_posts=num_posts) 
         self.close()
-        df = self.extract_data(page_source)
+        df = self.extract_data(group_id=group_id)
         self.logger.info(f"Done")
         self.write_csv(df, f"group_{group_id}_{len(df)}.csv")
         return df
