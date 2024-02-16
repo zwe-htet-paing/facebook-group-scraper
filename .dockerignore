@@ -9,7 +9,11 @@ __pycache__
 /tests
 /dist
 /notebook
+/data/checkpoint
 /data/downloads
+/data/raw
+/data/sources
+/data/transfer_data.sh
 
 poetry.lock
 pyproject.toml
