@@ -9,6 +9,7 @@ from datetime import datetime
 import re
 import pandas as pd
 from facebook_scraping_selenium.scraper import FacebookScraper
+from facebook_scraping_selenium.extractor import Extractor
 
 
 def get_group_dict(filepath: str):
@@ -130,6 +131,7 @@ def run(
         group_file_path="/data/nayar_public_active_groups.csv",
         output_path="/data/downloads",
         resume=False,
+        extract_only=False,
         posts_lookup=10,
         date_string="2024-02-07",
         extra_date=None,
@@ -158,12 +160,6 @@ def run(
             done = f.read().splitlines()
     else:
         done = list()
-
-    # raw data folder
-    os.makedirs(f'{root_dir}/data/raw', exist_ok=True)
-    raw_data_dir = f"{root_dir}/data/raw/{date_string}"
-    os.makedirs(raw_data_dir, exist_ok=True)
-
     
     # Take care of download path
     if date_string is None:
@@ -172,6 +168,11 @@ def run(
         filter_date = False
     else:
         filter_date = True
+
+    # raw data folder
+    os.makedirs(f'{root_dir}/data/raw', exist_ok=True)
+    raw_data_dir = f"{root_dir}/data/raw/{date_string}"
+    os.makedirs(raw_data_dir, exist_ok=True)
         
     folder_path = Path(os.path.join(root_dir+output_path, date_string))
     # folder_path.mkdir(exist_ok=True)
@@ -191,49 +192,65 @@ def run(
 
     # Get group dict
     group_dict = get_group_dict(root_dir+group_file_path)
-    
-    # Initialize FacebokScraper
-    fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=use_cookie, raw_data_dir=raw_data_dir)
-    
-    # Main loop
-    for idx, group_id in enumerate(list(group_dict.keys())):  # [:10] limit to 10 groups
-        logger.info(f"{'*' * 40}")
-        if str(group_id) in done:
-            logger.info(f"Group ID {idx+1}: {group_id} already done... ")
-            continue
-        else:
-            logger.info(f"{'*'*6} Group ID {idx+1}: {group_id} {'*'*6}")
-        start_time = time.time()
-        # Get target page_source
-        page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup)
-        # Extract data from page_source
-        # df = fb_scraper.extract_data(page_source)
-        df = fb_scraper.extract_data(group_id=group_id)
-        # Preprocess data
-        df = preprocess_df(df, date_list, filter_date)
-        
-        # check dataframe length
-        if len(df) == 0:
-            logger.info("No data for provided date...")
-        else:
-            # Write data to csv 
-            fb_scraper.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
-        
-        #@ add group to dont.txt    
-        done.append(group_id)
-        with open(f"{root_dir}/data/checkpoint/done.txt", 'a') as f:
-            f.write(str(group_id))
-            f.write('\n')
-            
-        logger.info(f"Group ID: {group_id} complete. Get {len(df)} posts.")
-        end_time = time.time()
-        
-        # Calculate elapsed time in minutes
-        elapsed_time = (end_time - start_time) / 60
-        logger.info(f"Elapsed Time: {elapsed_time:.2f} minutes")
 
-    # close browser
-    fb_scraper.close()
+    if extract_only == True:
+        extractor = Extractor()
+        for idx, group_id in enumerate(list(group_dict.keys())):
+            df = extractor.extract_data(group_id=group_id)
+            # Preprocess data
+            df = preprocess_df(df, date_list, filter_date)
+            
+            # check dataframe length
+            if len(df) == 0:
+                logger.info("No data for provided date...")
+            else:
+                # Write data to csv 
+                extractor.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
+
+    else:
+        # Initialize FacebokScraper
+        fb_scraper = FacebookScraper(credentials, driver_location, use_cookies=use_cookie, raw_data_dir=raw_data_dir)
+        extractor = Extractor()
+        # Main loop
+        for idx, group_id in enumerate(list(group_dict.keys())[:2]):  # [:10] limit to 10 groups
+            logger.info(f"{'*' * 40}")
+            if str(group_id) in done:
+                logger.info(f"Group ID {idx+1}: {group_id} already done... ")
+                continue
+            else:
+                logger.info(f"{'*'*6} Group ID {idx+1}: {group_id} {'*'*6}")
+            start_time = time.time()
+            # Get target page_source
+            page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup)
+            # Extract data from page_source
+            # df = fb_scraper.extract_data(page_source)
+            # df = fb_scraper.extract_data(group_id=group_id)
+            df = extractor.extract_data(group_id=group_id)
+            # Preprocess data
+            df = preprocess_df(df, date_list, filter_date)
+            
+            # check dataframe length
+            if len(df) == 0:
+                logger.info("No data for provided date...")
+            else:
+                # Write data to csv 
+                extractor.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
+            
+            #@ add group to dont.txt    
+            done.append(group_id)
+            with open(f"{root_dir}/data/checkpoint/done.txt", 'a') as f:
+                f.write(str(group_id))
+                f.write('\n')
+                
+            logger.info(f"Group ID: {group_id} complete. Get {len(df)} posts.")
+            end_time = time.time()
+            
+            # Calculate elapsed time in minutes
+            elapsed_time = (end_time - start_time) / 60
+            logger.info(f"Elapsed Time: {elapsed_time:.2f} minutes")
+
+        # close browser
+        fb_scraper.close()
 
     # get all group csv file and combine dataframe
     logger.info(f"{'*' * 40}")
@@ -263,7 +280,7 @@ if __name__ == "__main__":
     parser.add_argument("--use_cookies", action="store_true", default=False, help="Enable cookies usage.")
     parser.add_argument("--date", type=str, default=None, help="Date in format YYYY-MM-DD.")
     parser.add_argument("--extra_date", type=str, default=None, help="Extra date in format YYYY-MM-DD if needed. Use comma if multiple date.")
-    parser.add_argument("--posts_lookup", type=int, default=200, help="Number of posts to check.")
+    parser.add_argument("--posts_lookup", type=int, default=10, help="Number of posts to check.")
     parser.add_argument("--credentials", type=str, default="credentials.txt", help="Path of credentials file in .txt format.")
     parser.add_argument("--driver_location", type=str, default="local", help="Path of chrome driver location egs. docker, local.")
 
