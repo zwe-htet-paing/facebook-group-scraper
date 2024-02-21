@@ -265,7 +265,7 @@ if __name__ == "__main__":
     parser.add_argument("--use_cookies", action="store_true", default=False, help="Enable cookies usage.")
     parser.add_argument("--date", type=str, default=None, help="Date in format YYYY-MM-DD.")
     parser.add_argument("--extra_date", type=str, default=None, help="Extra date in format YYYY-MM-DD if needed. Use comma if multiple date.")
-    parser.add_argument("--posts_lookup", type=int, default=10, help="Number of posts to check.")
+    parser.add_argument("--posts_lookup", type=int, default=200, help="Number of posts to check.")
     parser.add_argument("--credentials", type=str, default="credentials.txt", help="Path of credentials file in .txt format.")
     parser.add_argument("--driver_location", type=str, default="local", help="Path of chrome driver location egs. docker, local.")
 

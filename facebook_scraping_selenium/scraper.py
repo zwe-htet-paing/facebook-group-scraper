@@ -340,7 +340,7 @@ class FacebookScraper:
                 
         # Get the page source after all content is loaded
         page_source = self.browser.page_source
-        self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
+        file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
 
         
         return file_path   
