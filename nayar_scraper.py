@@ -205,20 +205,21 @@ def run(
             logger.info(f"{'*'*6} Group ID {idx+1}: {group_id} {'*'*6}")
         start_time = time.time()
         # Get target page_source
-        page_source = fb_scraper.get_source(group_id, num_posts=posts_lookup)
-        # # Extract data from page_source
-        # # df = fb_scraper.extract_data(page_source)
-        # # df = fb_scraper.extract_data(group_id=group_id)
-        # df = extractor.extract_data(group_id=group_id)
-        # # Preprocess data
-        # df = preprocess_df(df, date_list, filter_date)
-        
-        # # check dataframe length
-        # if len(df) == 0:
-        #     logger.info("No data for provided date...")
-        # else:
-        #     # Write data to csv 
-        #     extractor.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
+        file_path = fb_scraper.get_source(group_id, num_posts=posts_lookup)
+        # Extract data from page_source
+        try:
+            df = extractor.extract_data(source_file=file_path)
+            # Preprocess data
+            df = preprocess_df(df, date_list, filter_date)
+            
+            # check dataframe length
+            if len(df) == 0:
+                logger.info("No data for provided date...")
+            else:
+                # Write data to csv 
+                extractor.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
+        except:
+            pass
         
         #@ add group to dont.txt    
         done.append(group_id)
@@ -227,7 +228,6 @@ def run(
             f.write('\n')
         
         logger.info(f"Group ID: {group_id} complete.") # Get {len(df)} posts.
-        time.sleep(3)
         end_time = time.time()
         
         # Calculate elapsed time in minutes
