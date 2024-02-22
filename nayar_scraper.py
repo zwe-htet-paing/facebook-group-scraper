@@ -18,9 +18,7 @@ def get_group_dict(filepath: str):
     """
 
     nayar_group = pd.read_csv(filepath)
-
     group_dict = nayar_group.set_index('id')['name'].to_dict()
-
     return group_dict
 
 
@@ -208,6 +206,7 @@ def run(
         file_path = fb_scraper.get_source(group_id, num_posts=posts_lookup)
         # Extract data from page_source
         try:
+            logger.info("Started extracting data")
             df = extractor.extract_data(source_file=file_path)
             # Preprocess data
             df = preprocess_df(df, date_list, filter_date)

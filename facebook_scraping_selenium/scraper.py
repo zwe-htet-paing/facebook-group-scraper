@@ -1,7 +1,6 @@
 # selenium-related
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from bs4 import BeautifulSoup as bs
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -23,19 +22,17 @@ import logging
 import pickle
 import sys
 
-from custom_utils import parse_datetime
 import utils.tag_config as tag
 
 class FacebookScraper:
     def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False, raw_data_dir="data/raw"):
         #@ set options
         self.chrome_option = Options()
-        self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode 
+        self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode
+        self.chrome_option.add_argument("start-maximized")
         self.chrome_option.add_argument("--disable-notifications")
         self.chrome_option.add_argument("--disable-infobars")
         self.chrome_option.add_argument("--disable-extensions")
-        self.chrome_option.add_argument("start-maximized")
-        
         self.chrome_option.add_argument("--disable-gpu")  # Disable GPU acceleration
         self.chrome_option.add_argument('--no-sandbox')
         self.chrome_option.add_argument('--disable-dev-shm-usage')
@@ -60,7 +57,6 @@ class FacebookScraper:
     
     @staticmethod
     def openSeeMore(browser):
-        # see_more_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz xt0b8zv xzsf02u x1s688f'
         xpath_exp = "//div[contains(@class,'{}') and contains(text(), 'See more')]"
         readMore = browser.find_elements(By.XPATH, xpath_exp.format(tag.see_more_tag))
         
@@ -80,22 +76,17 @@ class FacebookScraper:
                     except:
                         continue
                     
-            if len(readMore) - count > 0:
-                print('[ERROR]readMore issue:', len(readMore) - count)
+            # if len(readMore) - count > 0:
+            #     print('[ERROR]readMore issue:', len(readMore) - count)
             time.sleep(1)
         else:
             pass
         
     @staticmethod 
     def date_handover(browser):
-        # date_tag = 'x1rg5ohu x6ikm8r x10wlt62 x16dsc37 xt0b8zv'
-        # date_tag = 'x1i10hfl xjbqb8w x1ejq31n xd10rxx x1sy0etr x17r0tee x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm'
         xpath_exp = "//a[@class='{}']"
         date_elements = browser.find_elements(By.XPATH, xpath_exp.format(tag.date_tag))
-        # date_elements = WebDriverWait(browser, 30).until(EC.presence_of_all_elements_located((By.XPATH, xpath_exp.format(date_tag))))
-
-        # wait = WebDriverWait(browser, 30)
-        # element = wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class='x1i10hfl xjbqb8w x6umtig x1b1mbwd xaqea5y xav7gou x9f619 x1ypdohk xt0psk2 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x16tdsg8 x1hl2dhg xggy1nq x1a2a7pz x1heor9g xt0b8zv xo1l8bm']")))
+        
         if len(date_elements) > 0:
             count = 0
             for i in date_elements:
@@ -105,8 +96,7 @@ class FacebookScraper:
                     time.sleep(1)
                     # print(element.get_attribute("href"))
                     # wait.until(lambda browser: element.get_attribute("href") != "#")
-                    count += 1
-                    
+                    count += 1  
                 except:
                     try:
                         # print("java script scroll")
@@ -117,8 +107,8 @@ class FacebookScraper:
                     except:
                         continue
                     
-            if len(date_elements) - count > 0:
-                print('[ERROR] date_element issue:', len(date_elements) - count)
+            # if len(date_elements) - count > 0:
+            #     print('[ERROR] date_element issue:', len(date_elements) - count)
             time.sleep(1)
         else:
             pass
@@ -184,7 +174,6 @@ class FacebookScraper:
 
     def check_login(self):
         # Locate the div using its aria-label and class attributes
-        # create_post_tag = "x6s0dn4 x78zum5 x1a02dak x1a8lsjc x1pi30zi x1swvt13 xz9dl7a"
         div_locator = (By.XPATH, '//div[@aria-label="Create a post" and @class="{}"]'.format(tag.create_post_tag))
 
         # Wait for the element to be present (adjust the timeout as needed)
@@ -256,7 +245,6 @@ class FacebookScraper:
         switch = True
         old_numPosts = 0
         specifiedNumber = num_posts # number of posts to get
-        error_count = 0
 
         while switch:
             count += 1
@@ -273,17 +261,14 @@ class FacebookScraper:
 
             # # process check
             # # get content
-            # postsList = browser.find_elements(By.XPATH, "//div[@class='x1yztbdb x1n2onr6 xh8yej3 x1ja2u2z']")
+            # postsList = browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
             # numPosts = len(postsList)
             # if old_numPosts < numPosts:
             #     self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
             # old_numPosts = numPosts
-
-            # # termination condition
-            # if numPosts >= specifiedNumber:
-            #     switch = False
             
             # Get the last post element
+            time.sleep(2)
             postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
             # if postsList:
             #     last_post = postsList[-1]
@@ -292,16 +277,13 @@ class FacebookScraper:
 
             if postsList:
                 last_post = postsList[-1]
-
                 # Scroll to the last post element
                 try:
                     # Using WebDriverWait to wait until the element is clickable
                     wait = WebDriverWait(self.browser, 10)
                     wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))))
-
                     self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-                    time.sleep(2)
-                    
+                    time.sleep(2)   
                 except StaleElementReferenceException:
                     # Handle StaleElementReferenceException by re-finding the last post element
                     print("StaleElementReferenceException. Retrying...")
@@ -309,9 +291,7 @@ class FacebookScraper:
                     if postsList:
                         last_post = postsList[-1]
                         self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-                        
                         time.sleep(2)
-            
             else:
                 self.logger.info("No posts found.")
 
@@ -332,17 +312,14 @@ class FacebookScraper:
             # termination condition
             if (numPosts >= specifiedNumber):
                 switch = False
-                
                 self.date_handover(self.browser)
                 self.openSeeMore(self.browser)
                 self.getBack(self.browser, end_url)
-                
-                
+                    
         # Get the page source after all content is loaded
         page_source = self.browser.page_source
         file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
 
-        
         return file_path   
             
     # def scrape_group(self, group_id, num_posts=10):
