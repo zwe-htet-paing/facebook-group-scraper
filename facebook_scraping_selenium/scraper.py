@@ -121,7 +121,7 @@ class FacebookScraper:
             # print('[INFO] got back!!!')
     
     @staticmethod
-    def archiveAtEnd(browser, reviewList, group_id, source_data, raw_data_dir):
+    def archiveAtEnd(browser, reviewList, group_id, source_data, raw_data_dir, logger):
         # browser.execute_script("window.scrollTo(0, -document.body.scrollHeight);") # scroll back to the top
         # time.sleep(10)
             
@@ -156,15 +156,14 @@ class FacebookScraper:
         with open(file_path, "w", encoding="utf-8") as file:
             bs_data = bs(source_data, 'html.parser')
             file.write(str(bs_data.prettify()))
-            print(f'written: {group_id}')
+            logger.info(f'Saving raw data: {group_id}')
                     
-        
         return file_path
     
     @staticmethod
-    def save_cookies(browser, filename):
+    def save_cookies(browser, filename, logger):
         pickle.dump(browser.get_cookies(), open(filename, 'wb'))
-        print("cookies saved successfully")
+        logger.info("Cookies saved successfully")
 
     def add_cookies(self, filename):
         cookies = pickle.load(open(filename, 'rb'))
@@ -219,7 +218,7 @@ class FacebookScraper:
             # Wait for the login process to complete
             wait.until(EC.url_contains("facebook.com"))
             self.check_login()
-            self.save_cookies(self.browser, 'user_cookies.pkl')
+            self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
         
     def close(self):
         self.logger.info("Closing browser")
@@ -305,7 +304,7 @@ class FacebookScraper:
             else:
                 self.logger.info(f"Error Scrolling...")
                 # return page_source
-                file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
+                file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
                 return file_path
 
 
@@ -318,7 +317,7 @@ class FacebookScraper:
                     
         # Get the page source after all content is loaded
         page_source = self.browser.page_source
-        file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir)
+        file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
 
         return file_path   
             
