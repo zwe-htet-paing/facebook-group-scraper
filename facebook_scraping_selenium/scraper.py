@@ -58,7 +58,10 @@ class FacebookScraper:
     @staticmethod
     def openSeeMore(browser):
         xpath_exp = "//div[contains(@class,'{}') and contains(text(), 'See more')]"
-        readMore = browser.find_elements(By.XPATH, xpath_exp.format(tag.see_more_tag))
+        try:
+            readMore = browser.find_elements(By.XPATH, xpath_exp.format(tag.see_more_tag))
+        except:
+            pass
         
         if len(readMore) > 0:    
             count = 0
@@ -85,7 +88,10 @@ class FacebookScraper:
     @staticmethod 
     def date_handover(browser):
         xpath_exp = "//a[@class='{}']"
-        date_elements = browser.find_elements(By.XPATH, xpath_exp.format(tag.date_tag))
+        try:
+            date_elements = browser.find_elements(By.XPATH, xpath_exp.format(tag.date_tag))
+        except:
+            pass
         
         if len(date_elements) > 0:
             count = 0

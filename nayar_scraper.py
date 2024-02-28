@@ -236,18 +236,18 @@ def run(
     # close browser
     fb_scraper.close()
 
-    # get all group csv file and combine dataframe
-    logger.info(f"{'*' * 40}")
-    logger.info(f"Getting all data for date: {date_string}...")
-    final_df = get_data_for_one_date(date_string=date_string, data_path=root_dir+output_path)
+    # # get all group csv file and combine dataframe
+    # logger.info(f"{'*' * 40}")
+    # logger.info(f"Getting all data for date: {date_string}...")
+    # final_df = get_data_for_one_date(date_string=date_string, data_path=root_dir+output_path)
     
-    # Save the DataFrame to a CSV file in the specified folder
-    output_folder = os.path.join(root_dir+output_path, 'output')
-    os.makedirs(output_folder, exist_ok=True)
+    # # Save the DataFrame to a CSV file in the specified folder
+    # output_folder = os.path.join(root_dir+output_path, 'output')
+    # os.makedirs(output_folder, exist_ok=True)
 
-    output_file_path = os.path.join(output_folder, f"{date_string}_output_{len(final_df)}.csv")
-    final_df.to_csv(output_file_path, index=False)
-    logger.info(f"DataFrame saved to {output_file_path}")
+    # output_file_path = os.path.join(output_folder, f"{date_string}_output_{len(final_df)}.csv")
+    # final_df.to_csv(output_file_path, index=False)
+    # logger.info(f"DataFrame saved to {output_file_path}")
     
     end_program = time.time()    
     # Calculate elapsed time in minutes

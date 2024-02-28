@@ -104,8 +104,9 @@ class Extractor:
             if span_element is not None:
                 # print('<use> tag')
                 # 2. Using <use> tag
-                date_index = span_element.find('use')['xlink:href']
-                date_element = page.find('text', {'id':str(date_index[1:])})
+                use_element = span_element.find('use')
+                date_index = use_element['xlink:href'] if use_element is not None else None
+                date_element = page.find('text', {'id':str(date_index[1:])}) if date_index is not None else None
                 if date_element is None:
                     # print('aria-labelledby')
                     # 3. Using "aria-labelledby" attribute
@@ -114,10 +115,12 @@ class Extractor:
                     if date_element is None:
                         # print('svg')
                         # 4. Using "svg" attribute
-                        date_index = span_element.find('use')['xlink:href']
-                        svg_date_index = page.find('svg', {'id': str(date_index[1:])}).find('use')['xlink:href']
+                        svg_element = span_element.find('use')
+                        date_index = svg_element['xlink:href'] if svg_element is not None else None
+                        svg_date_element = page.find('svg', {'id': str(date_index[1:])}).find('use') if date_index is not None else None
+                        svg_date_index = svg_date_element['xlink:href'] if svg_date_element is not None else None
                         # print(svg_date_index)
-                        date_element = page.find('text', {'id':str(svg_date_index[1:])})
+                        date_element = page.find('text', {'id':str(svg_date_index[1:])}) if svg_date_index is not None else None
                     
                 date_string = date_element.text if date_element is not None else None
                 # print(date_string)
