@@ -202,23 +202,34 @@ def run(
         else:
             logger.info(f"{'*'*6} Group ID {idx+1}: {group_id} {'*'*6}")
         start_time = time.time()
-        # Get target page_source
-        file_path = fb_scraper.get_source(group_id, num_posts=posts_lookup)
-        # Extract data from page_source
         try:
-            logger.info("Started extracting data")
-            df = extractor.extract_data(source_file=file_path)
-            # Preprocess data
-            df = preprocess_df(df, date_list, filter_date)
-            
-            # check dataframe length
-            if len(df) == 0:
-                logger.info("No data for provided date...")
-            else:
-                # Write data to csv 
-                extractor.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
+            # Get target page_source
+            file_path = fb_scraper.get_source(group_id, num_posts=posts_lookup)  
         except:
-            pass
+            # Retry
+            logger.info("Browser  error occurred. Restarting...")
+            fb_scraper.close()
+            fb_scraper.login(credentials=credentials, driver_location=driver_location, cookies=use_cookie)
+            file_path = fb_scraper.get_source(group_id, num_posts=posts_lookup)
+        else:
+            logger.info("Successfully scrape data")
+        finally:
+            # Extract data from page_source
+            try:
+                logger.info("Started extracting data")
+                df = extractor.extract_data(source_file=file_path)
+                # Preprocess data
+                df = preprocess_df(df, date_list, filter_date=False)
+                
+                # check dataframe length
+                if len(df) == 0:
+                    logger.info("No data for provided date...")
+                else:
+                    # Write data to csv 
+                    extractor.write_csv(df, f"{folder_path}/group_{group_id}_{len(df)}.csv")
+            except:
+                pass
+            
         
         #@ add group to dont.txt    
         done.append(group_id)
