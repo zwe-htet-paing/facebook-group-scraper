@@ -246,86 +246,89 @@ class FacebookScraper:
         else:
             end_url = target_id
 
-        count = 0
-        switch = True
-        old_numPosts = 0
-        specifiedNumber = num_posts # number of posts to get
-
-        while switch:
-            count += 1
-            postsList = None
-            last_post = None
+        def process_scrolling():
             
-            self.date_handover(self.browser)
-            self.openSeeMore(self.browser)
-            self.getBack(self.browser, end_url)
-
-            # # scroll to the bottom
-            # browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            # time.sleep(3)
-
-            # # process check
-            # # get content
-            # postsList = browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
-            # numPosts = len(postsList)
-            # if old_numPosts < numPosts:
-            #     self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
-            # old_numPosts = numPosts
-            
-            # Get the last post element
-            time.sleep(2)
-            postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
-            # if postsList:
-            #     last_post = postsList[-1]
-            #     self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-            #     time.sleep(2)
-
-            if postsList:
-                last_post = postsList[-1]
-                # Scroll to the last post element
-                try:
-                    # Using WebDriverWait to wait until the element is clickable
-                    wait = WebDriverWait(self.browser, 10)
-                    wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))))
-                    self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-                    time.sleep(2)   
-                except StaleElementReferenceException:
-                    # Handle StaleElementReferenceException by re-finding the last post element
-                    print("StaleElementReferenceException. Retrying...")
-                    postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format()(tag.post_list_tag))
-                    if postsList:
-                        last_post = postsList[-1]
-                        self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-                        time.sleep(2)
-            else:
-                self.logger.info("No posts found.")
-
-            # process check
-            numPosts = len(postsList)
-            self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
-
-            if numPosts > old_numPosts:
-                old_numPosts = numPosts
-                page_source = self.browser.page_source
-            else:
-                self.logger.info(f"Error Scrolling...")
-                # return page_source
-                file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
-                return file_path
-
-
-            # termination condition
-            if (numPosts >= specifiedNumber):
-                switch = False
+            count = 0
+            switch = True
+            old_numPosts = 0
+            specifiedNumber = num_posts # number of posts to get
+            self.logger.info("Start Scrolling...")
+            while switch:
+                count += 1
+                postsList = None
+                last_post = None
+                
                 self.date_handover(self.browser)
                 self.openSeeMore(self.browser)
                 self.getBack(self.browser, end_url)
-                    
-        # Get the page source after all content is loaded
-        page_source = self.browser.page_source
-        file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
 
-        return file_path   
+                # # scroll to the bottom
+                # self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                # time.sleep(3)
+                # # process check and get content
+                # postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
+                # numPosts = len(postsList)
+                # if numPosts > old_numPosts:
+                #     self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
+                # old_numPosts = numPosts
+                
+                # Get the last post element
+                time.sleep(2)
+                postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
+                if postsList:
+                    last_post = postsList[-1]
+                    self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+                    time.sleep(2)
+
+                # if postsList:
+                #     last_post = postsList[-1]
+                #     # Scroll to the last post element
+                #     try:
+                #         # Using WebDriverWait to wait until the element is clickable
+                #         wait = WebDriverWait(self.browser, 10)
+                #         wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))))
+                #         self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+                #         time.sleep(2)   
+                #     except StaleElementReferenceException:
+                #         # Handle StaleElementReferenceException by re-finding the last post element
+                #         print("StaleElementReferenceException. Retrying...")
+                #         postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format()(tag.post_list_tag))
+                #         if postsList:
+                #             last_post = postsList[-1]
+                #             self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+                #             time.sleep(2)
+                else:
+                    self.logger.info("No posts found.")
+
+                # process check
+                numPosts = len(postsList)
+                self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
+
+                if numPosts > old_numPosts:
+                    old_numPosts = numPosts
+                    page_source = self.browser.page_source
+                else:
+                    self.logger.info(f"Error Scrolling...")
+                    # # return page_source
+                    # file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
+                    # return file_path
+                    return process_scrolling()
+
+                # termination condition
+                if (numPosts >= specifiedNumber):
+                    switch = False
+                    self.date_handover(self.browser)
+                    self.openSeeMore(self.browser) 
+                    self.getBack(self.browser, end_url)
+                        
+            # Get the page source after all content is loaded
+            page_source = self.browser.page_source
+            file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
+
+            return file_path   
+        
+        # Initial call to process_scrolling
+        return process_scrolling()
             
     # def scrape_group(self, group_id, num_posts=10):
     #     page_source = self.get_source(group_id, num_posts=num_posts) 
