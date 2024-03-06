@@ -310,9 +310,9 @@ class FacebookScraper:
                 else:
                     self.logger.info(f"Error Scrolling...")
                     # # return page_source
-                    # file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
-                    # return file_path
-                    return process_scrolling()
+                    file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
+                    return file_path
+                    # return process_scrolling()
 
                 # termination condition
                 if (numPosts >= specifiedNumber):

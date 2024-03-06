@@ -208,8 +208,8 @@ def run(
         except:
             # Retry
             logger.info("Browser  error occurred. Restarting...")
-            fb_scraper.close()
-            fb_scraper.login(credentials=credentials, driver_location=driver_location, cookies=use_cookie)
+            # fb_scraper.close()
+            # fb_scraper.login(credentials=credentials, driver_location=driver_location, cookies=use_cookie)
             file_path = fb_scraper.get_source(group_id, num_posts=posts_lookup)
         else:
             logger.info("Successfully scrape data")
