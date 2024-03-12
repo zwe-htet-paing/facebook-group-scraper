@@ -28,7 +28,7 @@ class FacebookScraper:
     def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False, raw_data_dir="data/raw"):
         #@ set options
         self.chrome_option = Options()
-        self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode
+        # self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode
         self.chrome_option.add_argument("start-maximized")
         self.chrome_option.add_argument("--disable-notifications")
         self.chrome_option.add_argument("--disable-infobars")
@@ -192,6 +192,11 @@ class FacebookScraper:
 
     def login(self, credentials, driver_location, cookies=True):
 
+        #@ credentials
+        with open(credentials) as file:
+            self.EMAIL = file.readline().split('"')[1]
+            self.PASSWORD = file.readline().split('"')[1]
+
         if cookies:
             self.logger.info("Starting browser using cookies...")
             self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
@@ -200,15 +205,19 @@ class FacebookScraper:
             self.browser.get("http://facebook.com")
             self.add_cookies('user_cookies.pkl')
             self.browser.refresh() #refresh the page
-            time.sleep(10)
+            # time.sleep(160)
+
+            # Find the password input element by its name attribute
+            # pass_field = self.browser.find_element_by_name("pass")
+            pass_field = WebDriverWait(self.browser, 30).until(EC.visibility_of_element_located((By.NAME, 'pass')))
+            if pass_field:
+                pass_field.send_keys(self.PASSWORD)
+                pass_field.send_keys(Keys.RETURN)
+                self.browser.refresh()
+
             self.check_login()
-            self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
+            # self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
         else:
-            #@ credentials
-            with open(credentials) as file:
-                self.EMAIL = file.readline().split('"')[1]
-                self.PASSWORD = file.readline().split('"')[1]
-            
             self.logger.info("Starting browser...")
             self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
             self.browser.get("http://facebook.com")
