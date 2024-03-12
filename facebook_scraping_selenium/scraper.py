@@ -28,7 +28,7 @@ class FacebookScraper:
     def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False, raw_data_dir="data/raw"):
         #@ set options
         self.chrome_option = Options()
-        # self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode
+        self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode
         self.chrome_option.add_argument("start-maximized")
         self.chrome_option.add_argument("--disable-notifications")
         self.chrome_option.add_argument("--disable-infobars")
