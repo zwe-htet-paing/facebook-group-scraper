@@ -4,7 +4,7 @@ services:
   fb_crawler1:
     image:  "fb_crawler"
     container_name: "fb_crawler1"
-    command: ["python3", "nayar_scraper.py", "--driver_location", "docker"]
+    command: ["python3", "nayar_scraper.py", "--driver_location", "docker", "--use_cookies", "--date", "2024-03-11", "--posts_lookup", "300"] # , "--resume"
     volumes:
       - /home/oliver/Desktop/PROMES/web_crawler/facebook-scraping-selenium/data/raw:/app/data/raw
       - /home/oliver/Desktop/PROMES/web_crawler/facebook-scraping-selenium/data/downloads:/app/data/downloads

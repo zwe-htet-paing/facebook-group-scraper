@@ -200,7 +200,9 @@ class FacebookScraper:
             self.browser.get("http://facebook.com")
             self.add_cookies('user_cookies.pkl')
             self.browser.refresh() #refresh the page
+            time.sleep(10)
             self.check_login()
+            self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
         else:
             #@ credentials
             with open(credentials) as file:
@@ -219,6 +221,8 @@ class FacebookScraper:
             pass_field = wait.until(EC.visibility_of_element_located((By.NAME, 'pass')))
             pass_field.send_keys(self.PASSWORD)
             pass_field.send_keys(Keys.RETURN)
+
+            time.sleep(160)
             
             # time.sleep(3)
             # Wait for the login process to complete
@@ -236,17 +240,18 @@ class FacebookScraper:
         self.logger.info("*" * 40)
         self.logger.info(f"Getting source ...")
         self.logger.info(f"Go to target URL: {target_id}...")
-        self.browser.get(f"https://wwww.facebook.com/{target_id}")
-
-        time.sleep(3)
-        url = self.browser.current_url
-        if 'groups' in url.split('/'):
-            end_url = url.split('groups/')[-1]
-            # self.logger.info(end_url)
-        else:
-            end_url = target_id
 
         def process_scrolling():
+
+            self.browser.get(f"https://wwww.facebook.com/{target_id}")
+
+            time.sleep(3)
+            url = self.browser.current_url
+            if 'groups' in url.split('/'):
+                end_url = url.split('groups/')[-1]
+                # self.logger.info(end_url)
+            else:
+                end_url = target_id
             
             count = 0
             switch = True
@@ -309,6 +314,8 @@ class FacebookScraper:
                     page_source = self.browser.page_source
                 else:
                     self.logger.info(f"Error Scrolling...")
+                    # self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    # time.sleep(3)
                     # # return page_source
                     file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
                     return file_path

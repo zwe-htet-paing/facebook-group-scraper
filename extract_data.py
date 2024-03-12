@@ -36,10 +36,10 @@ def get_data_for_one_date(folder_path: str):
 
 
 if __name__ == "__main__":
-    date_string = "2024-02-27"
-    output_name =  "scrape_data" # "download" or "scrape_data"
-    filter_date = True
-    combine_only = False
+    date_string = "2024-03-11"
+    output_name =  "downloads" # "downloads" or "scrape_data"
+    filter_date = False
+    combine_only = True
     folder_path = f"data/raw/{date_string}"
     output_path = f"data/{output_name}/{date_string}"
     os.makedirs(output_path, exist_ok=True)
