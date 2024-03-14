@@ -1,14 +1,17 @@
 from glob import glob
 import os
 import time
+from datetime import datetime
 import pandas as pd
 from facebook_scraping_selenium.extractor import Extractor
 from nayar_scraper import preprocess_df
 
-def get_data_for_one_date(folder_path: str):
+def get_data_for_one_date(folder_path: str, date_string: str, filter_date=True):
     # Convert date string to datetime.date object
+    print("[INFO] DATE: ", date_string)
     # date_object = datetime.strptime(date_string, '%Y-%m-%d').date()
-    # print("[INFO] DATE: ", date_string)
+    date_list = [date_string]
+    print(date_list)
     
     # folder_path = os.path.join(data_path, date_string)
     file_list = glob(os.path.join(folder_path, '*.csv'))
@@ -19,6 +22,13 @@ def get_data_for_one_date(folder_path: str):
         group_id = file.split('/')[-1].split('.')[-2].split('_')[-2]
 
         temp_df = pd.read_csv(file)
+
+        # Convert the 'time' to datetime format
+        temp_df['time'] = pd.to_datetime(temp_df['time'])
+        
+        if filter_date:
+            # Filter rows where 'time' is in provided dates
+            temp_df = temp_df[temp_df['time'].dt.date.astype(str).isin(date_list)]
                
         # Add 'group_id' column
         temp_df['group_id'] = group_id
@@ -62,7 +72,7 @@ if __name__ == "__main__":
 
 
     print("[INFO] Combining data...")
-    final_df = get_data_for_one_date(output_path)
+    final_df = get_data_for_one_date(output_path, date_string)
 
     # final_df['time'] = pd.to_datetime(final_df['time'])
     # final_df = final_df[final_df['time'].dt.date.astype(str).isin([date_string])]

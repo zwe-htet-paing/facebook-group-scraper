@@ -106,12 +106,12 @@ class Extractor:
                 # 2. Using <use> tag
                 use_element = span_element.find('use')
                 date_index = use_element['xlink:href'] if use_element is not None else None
-                date_element = page.find('text', {'id':str(date_index[1:])}) if date_index is not None else None
+                date_element = page.find('text', {'id':str(date_index)}) if date_index is not None else None
                 if date_element is None:
                     # print('aria-labelledby')
                     # 3. Using "aria-labelledby" attribute
                     date_index = span_element['aria-labelledby']
-                    date_element = page.find('span', {'id':str(date_index[1:])})
+                    date_element = page.find('span', {'id':str(date_index)})
                     if date_element is None:
                         # print('svg')
                         # 4. Using "svg" attribute

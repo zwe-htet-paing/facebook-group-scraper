@@ -100,17 +100,24 @@ class FacebookScraper:
                 try:
                     action.move_to_element(i).perform()
                     time.sleep(1)
-                    # print(element.get_attribute("href"))
-                    # wait.until(lambda browser: element.get_attribute("href") != "#")
+                    
+                    # # Wait until the attribute changes from "#" to a link
+                    # link = WebDriverWait(browser, 5).until(EC.not_(EC.attribute_to_be("href", "#")))
+                    # # Print the link
+                    # print(link.get_attribute("href"))
+                    # print(i.get_attribute("href"))
                     count += 1  
                 except:
                     try:
-                        # print("java script scroll")
+                        print("java script scroll")
                         browser.execute_script("arguments[0].scrollIntoView();", i)
-                        # time.sleep(1)
-                        # print(element.get_attribute("href"))
+                        time.sleep(1)
+
+                        # link = WebDriverWait(browser, 5).until(EC.not_(EC.attribute_to_be("href", "#")))
+                        # print(link.get_attribute("href"))
                         count += 1
                     except:
+                        # print("Error")
                         continue
                     
             # if len(date_elements) - count > 0:
@@ -209,11 +216,14 @@ class FacebookScraper:
 
             # Find the password input element by its name attribute
             # pass_field = self.browser.find_element_by_name("pass")
-            pass_field = WebDriverWait(self.browser, 30).until(EC.visibility_of_element_located((By.NAME, 'pass')))
-            if pass_field:
-                pass_field.send_keys(self.PASSWORD)
-                pass_field.send_keys(Keys.RETURN)
-                self.browser.refresh()
+            try:
+                pass_field = WebDriverWait(self.browser, 10).until(EC.visibility_of_element_located((By.NAME, 'pass')))
+                if pass_field:
+                    pass_field.send_keys(self.PASSWORD)
+                    pass_field.send_keys(Keys.RETURN)
+                    self.browser.refresh()
+            except:
+                pass
 
             self.check_login()
             # self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
