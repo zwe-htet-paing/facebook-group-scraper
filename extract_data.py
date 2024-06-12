@@ -6,38 +6,39 @@ import pandas as pd
 from facebook_scraping_selenium.extractor import Extractor
 from nayar_scraper import preprocess_df
 
+
 def get_data_for_one_date(folder_path: str, date_string: str, filter_date=True):
     # Convert date string to datetime.date object
     print("[INFO] DATE: ", date_string)
     # date_object = datetime.strptime(date_string, '%Y-%m-%d').date()
     date_list = [date_string]
     print(date_list)
-    
+
     # folder_path = os.path.join(data_path, date_string)
-    file_list = glob(os.path.join(folder_path, '*.csv'))
-    
+    file_list = glob(os.path.join(folder_path, "*.csv"))
+
     final_df = pd.DataFrame()
-    
+
     for file in file_list:
-        group_id = file.split('/')[-1].split('.')[-2].split('_')[-2]
+        group_id = file.split("/")[-1].split(".")[-2].split("_")[-2]
 
         temp_df = pd.read_csv(file)
 
         # Convert the 'time' to datetime format
-        temp_df['time'] = pd.to_datetime(temp_df['time'])
-        
+        temp_df["time"] = pd.to_datetime(temp_df["time"])
+
         if filter_date:
             # Filter rows where 'time' is in provided dates
-            temp_df = temp_df[temp_df['time'].dt.date.astype(str).isin(date_list)]
-               
+            temp_df = temp_df[temp_df["time"].dt.date.astype(str).isin(date_list)]
+
         # Add 'group_id' column
-        temp_df['group_id'] = group_id
-   
+        temp_df["group_id"] = group_id
+
         # Concatenate to the final DataFrame
         final_df = pd.concat([final_df, temp_df], ignore_index=True)
 
     # Drop duplicates based on 'text' column
-    final_df.drop_duplicates(subset=['text'], inplace=True)
+    final_df.drop_duplicates(subset=["text"], inplace=True)
 
     # Reset index
     final_df.reset_index(drop=True, inplace=True)
@@ -47,7 +48,7 @@ def get_data_for_one_date(folder_path: str, date_string: str, filter_date=True):
 
 if __name__ == "__main__":
     date_string = "2024-03-11"
-    output_name =  "downloads" # "downloads" or "scrape_data"
+    output_name = "downloads"  # "downloads" or "scrape_data"
     filter_date = False
     combine_only = True
     folder_path = f"data/raw/{date_string}"
@@ -63,13 +64,16 @@ if __name__ == "__main__":
             # print(raw_file)
             print(f"[INFO] Group ID: {group_id}")
             temp_df = extractor.extract_data(source_file=raw_file)
-            clean_df = preprocess_df(temp_df, date_list=[date_string], filter_date=filter_date)
-            extractor.write_csv(clean_df, f"{output_path}/group_{group_id}_{len(clean_df)}.csv")
+            clean_df = preprocess_df(
+                temp_df, date_list=[date_string], filter_date=filter_date
+            )
+            extractor.write_csv(
+                clean_df, f"{output_path}/group_{group_id}_{len(clean_df)}.csv"
+            )
 
             end_time = time.time()
             elapsed_time = (end_time - start_time) / 60
             print(f"[INFO] Elapsed Time: {elapsed_time:.2f} minutes")
-
 
     print("[INFO] Combining data...")
     final_df = get_data_for_one_date(output_path, date_string)
@@ -77,9 +81,11 @@ if __name__ == "__main__":
     # final_df['time'] = pd.to_datetime(final_df['time'])
     # final_df = final_df[final_df['time'].dt.date.astype(str).isin([date_string])]
 
-    final_output = 'data/output'
+    final_output = "data/output"
     os.makedirs(final_output, exist_ok=True)
 
-    output_file_path = os.path.join(final_output, f"{date_string}_output_{len(final_df)}.csv")
+    output_file_path = os.path.join(
+        final_output, f"{date_string}_output_{len(final_df)}.csv"
+    )
     final_df.to_csv(output_file_path, index=False)
     print("[INFO] Complete")

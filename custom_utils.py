@@ -31,15 +31,15 @@ minute = r"\d{2}"
 period = r"AM|PM|"
 
 exact_time = f"(?:{date}) at {hour}:{minute} ?(?:{period})"
-relative_time_years = r'\b\d{1,2} yr'
-relative_time_months = r'\b\d{1,2} (?:mth|mo)'
-relative_time_weeks = r'\b\d{1,2} wk'
+relative_time_years = r"\b\d{1,2} yr"
+relative_time_months = r"\b\d{1,2} (?:mth|mo)"
+relative_time_weeks = r"\b\d{1,2} wk"
 relative_time_hours = r"\b\d{1,2} ?h(?:rs?)?"
 relative_time_mins = r"\b\d{1,2} ?mins?"
 relative_time = f"{relative_time_years}|{relative_time_months}|{relative_time_weeks}|{relative_time_hours}|{relative_time_mins}"
 
-datetime_regex = re.compile(fr"({exact_time}|{relative_time})", re.IGNORECASE)
-day_of_week_regex = re.compile(fr"({day_of_week})", re.IGNORECASE)
+datetime_regex = re.compile(rf"({exact_time}|{relative_time})", re.IGNORECASE)
+day_of_week_regex = re.compile(rf"({day_of_week})", re.IGNORECASE)
 
 
 def parse_datetime(text: str, search=True) -> Optional[datetime]:
@@ -56,7 +56,9 @@ def parse_datetime(text: str, search=True) -> Optional[datetime]:
         The datetime object, or None if it couldn't find a date.
     """
     settings = {
-        'RELATIVE_BASE': datetime.today().replace(minute=0, hour=0, second=0, microsecond=0)
+        "RELATIVE_BASE": datetime.today().replace(
+            minute=0, hour=0, second=0, microsecond=0
+        )
     }
     if search:
         time_match = datetime_regex.search(text)

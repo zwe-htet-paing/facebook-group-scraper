@@ -24,9 +24,16 @@ import sys
 
 import utils.tag_config as tag
 
+
 class FacebookScraper:
-    def __init__(self, credentials='credentials.txt', driver_location="../chromedriver-linux64/chromedriver", use_cookies=False, raw_data_dir="data/raw"):
-        #@ set options
+    def __init__(
+        self,
+        credentials="credentials.txt",
+        driver_location="../chromedriver-linux64/chromedriver",
+        use_cookies=False,
+        raw_data_dir="data/raw",
+    ):
+        # @ set options
         self.chrome_option = Options()
         self.chrome_option.add_argument("--headless")  # Run Chrome in headless mode
         self.chrome_option.add_argument("start-maximized")
@@ -34,39 +41,45 @@ class FacebookScraper:
         self.chrome_option.add_argument("--disable-infobars")
         self.chrome_option.add_argument("--disable-extensions")
         self.chrome_option.add_argument("--disable-gpu")  # Disable GPU acceleration
-        self.chrome_option.add_argument('--no-sandbox')
-        self.chrome_option.add_argument('--disable-dev-shm-usage')
-        
-        #@ custom logger
+        self.chrome_option.add_argument("--no-sandbox")
+        self.chrome_option.add_argument("--disable-dev-shm-usage")
+
+        # @ custom logger
         self.logger = logging.getLogger("FacebookScraper")
         self.logger.setLevel(logging.INFO)
-        
+
         # Create a console handler and set its level to INFO
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
-        
+
         # Create a formatter and set the formatter for the handler
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         console.setFormatter(formatter)
         self.logger.addHandler(console)
-        
+
         # start login
-        self.login(credentials=credentials, driver_location=driver_location, cookies=use_cookies)
+        self.login(
+            credentials=credentials,
+            driver_location=driver_location,
+            cookies=use_cookies,
+        )
 
         self.raw_data_dir = raw_data_dir
-    
+
     @staticmethod
     def openSeeMore(browser):
         xpath_exp = "//div[contains(@class,'{}') and contains(text(), 'See more')]"
         try:
-            readMore = browser.find_elements(By.XPATH, xpath_exp.format(tag.see_more_tag))
+            readMore = browser.find_elements(
+                By.XPATH, xpath_exp.format(tag.see_more_tag)
+            )
         except:
             pass
-        
-        if len(readMore) > 0:    
+
+        if len(readMore) > 0:
             count = 0
             for i in readMore:
-                action=ActionChains(browser)
+                action = ActionChains(browser)
                 try:
                     action.move_to_element(i).click().perform()
                     time.sleep(1)
@@ -78,35 +91,37 @@ class FacebookScraper:
                         count += 1
                     except:
                         continue
-                    
+
             # if len(readMore) - count > 0:
             #     print('[ERROR]readMore issue:', len(readMore) - count)
             time.sleep(1)
         else:
             pass
-        
-    @staticmethod 
+
+    @staticmethod
     def date_handover(browser):
         xpath_exp = "//a[@class='{}']"
         try:
-            date_elements = browser.find_elements(By.XPATH, xpath_exp.format(tag.date_tag))
+            date_elements = browser.find_elements(
+                By.XPATH, xpath_exp.format(tag.date_tag)
+            )
         except:
             pass
-        
+
         if len(date_elements) > 0:
             count = 0
             for i in date_elements:
-                action=ActionChains(browser)
+                action = ActionChains(browser)
                 try:
                     action.move_to_element(i).perform()
                     time.sleep(1)
-                    
+
                     # # Wait until the attribute changes from "#" to a link
                     # link = WebDriverWait(browser, 5).until(EC.not_(EC.attribute_to_be("href", "#")))
                     # # Print the link
                     # print(link.get_attribute("href"))
                     # print(i.get_attribute("href"))
-                    count += 1  
+                    count += 1
                 except:
                     try:
                         print("java script scroll")
@@ -119,32 +134,32 @@ class FacebookScraper:
                     except:
                         # print("Error")
                         continue
-                    
+
             # if len(date_elements) - count > 0:
             #     print('[ERROR] date_element issue:', len(date_elements) - count)
             time.sleep(1)
         else:
             pass
-    
+
     @staticmethod
     def getBack(browser, end_url):
         if not browser.current_url.endswith(end_url):
             # print('[INFO] redirected!!!')
             browser.back()
             # print('[INFO] got back!!!')
-    
+
     @staticmethod
     def archiveAtEnd(browser, reviewList, group_id, source_data, raw_data_dir, logger):
         # browser.execute_script("window.scrollTo(0, -document.body.scrollHeight);") # scroll back to the top
         # time.sleep(10)
-            
+
         # for idx, l in enumerate(reviewList):
         #     if idx % 10 == 0:
         #         if idx < 15:
         #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[0])
         #         else:
         #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx-15])
-                
+
         #         time.sleep(1)
         #         try:
         #             browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx+15])
@@ -153,7 +168,7 @@ class FacebookScraper:
 
         #         time.sleep(1)
         #         browser.execute_script("arguments[0].scrollIntoView();", reviewList[idx])
-                
+
         #         for r in range(2):
         #             time.sleep(2)
         #             try:
@@ -165,32 +180,39 @@ class FacebookScraper:
         #             time.sleep(3)
 
         # source_data = browser.page_source
-        file_path = f'{raw_data_dir}/{group_id}.html'
+        file_path = f"{raw_data_dir}/{group_id}.html"
         with open(file_path, "w", encoding="utf-8") as file:
-            bs_data = bs(source_data, 'html.parser')
+            bs_data = bs(source_data, "html.parser")
             file.write(str(bs_data.prettify()))
-            logger.info(f'Saving raw data: {group_id}')
-                    
+            logger.info(f"Saving raw data: {group_id}")
+
         return file_path
-    
+
     @staticmethod
     def save_cookies(browser, filename, logger):
-        pickle.dump(browser.get_cookies(), open(filename, 'wb'))
+        pickle.dump(browser.get_cookies(), open(filename, "wb"))
         logger.info("Cookies saved successfully")
 
     def add_cookies(self, filename):
-        cookies = pickle.load(open(filename, 'rb'))
+        cookies = pickle.load(open(filename, "rb"))
         for cookie in cookies:
             self.browser.add_cookie(cookie)
         self.logger.info("Cookies added successfully")
 
     def check_login(self):
         # Locate the div using its aria-label and class attributes
-        div_locator = (By.XPATH, '//div[@aria-label="Create a post" and @class="{}"]'.format(tag.create_post_tag))
+        div_locator = (
+            By.XPATH,
+            '//div[@aria-label="Create a post" and @class="{}"]'.format(
+                tag.create_post_tag
+            ),
+        )
 
         # Wait for the element to be present (adjust the timeout as needed)
         try:
-            element = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located(div_locator))
+            element = WebDriverWait(self.browser, 10).until(
+                EC.presence_of_element_located(div_locator)
+            )
         except:
             self.logger.error("Login unsuccessful...")
             sys.exit(0)
@@ -198,90 +220,96 @@ class FacebookScraper:
         self.logger.info("Login successful")
 
     def login(self, credentials, driver_location, cookies=True):
-
-        #@ credentials
+        # @ credentials
         with open(credentials) as file:
             self.EMAIL = file.readline().split('"')[1]
             self.PASSWORD = file.readline().split('"')[1]
 
         if cookies:
             self.logger.info("Starting browser using cookies...")
-            self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
+            self.browser = webdriver.Chrome(
+                service=Service(driver_location), options=self.chrome_option
+            )
             # Delete a cookie with name 'test1'
             self.browser.delete_all_cookies()
             self.browser.get("http://facebook.com")
-            self.add_cookies('user_cookies.pkl')
-            self.browser.refresh() #refresh the page
+            self.add_cookies("user_cookies.pkl")
+            self.browser.refresh()  # refresh the page
             # time.sleep(160)
 
             # Find the password input element by its name attribute
             # pass_field = self.browser.find_element_by_name("pass")
             try:
-                pass_field = WebDriverWait(self.browser, 10).until(EC.visibility_of_element_located((By.NAME, 'pass')))
+                pass_field = WebDriverWait(self.browser, 10).until(
+                    EC.visibility_of_element_located((By.NAME, "pass"))
+                )
                 if pass_field:
                     pass_field.send_keys(self.PASSWORD)
                     pass_field.send_keys(Keys.RETURN)
                     self.browser.refresh()
             except:
+                self.logger.error("Invalid Cookies")
                 pass
 
             self.check_login()
             # self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
         else:
             self.logger.info("Starting browser...")
-            self.browser = webdriver.Chrome(service=Service(driver_location), options=self.chrome_option)
+            self.browser = webdriver.Chrome(
+                service=Service(driver_location), options=self.chrome_option
+            )
             self.browser.get("http://facebook.com")
             self.browser.maximize_window()
             wait = WebDriverWait(self.browser, 30)
 
             self.logger.info("Logging in...")
-            email_field = wait.until(EC.visibility_of_element_located((By.NAME, 'email')))
+            email_field = wait.until(
+                EC.visibility_of_element_located((By.NAME, "email"))
+            )
             email_field.send_keys(self.EMAIL)
-            pass_field = wait.until(EC.visibility_of_element_located((By.NAME, 'pass')))
+            pass_field = wait.until(EC.visibility_of_element_located((By.NAME, "pass")))
             pass_field.send_keys(self.PASSWORD)
             pass_field.send_keys(Keys.RETURN)
 
-            time.sleep(160)
-            
+            time.sleep(80)
+
             # time.sleep(3)
             # Wait for the login process to complete
             wait.until(EC.url_contains("facebook.com"))
             self.check_login()
-            self.save_cookies(self.browser, 'user_cookies.pkl', self.logger)
-        
+            self.save_cookies(self.browser, "user_cookies.pkl", self.logger)
+
     def close(self):
         self.logger.info("Closing browser")
         self.browser.close()
-    
+
     def get_source(self, target_id, num_posts=100):
-        
         # once logged in, free to open up any target page
         self.logger.info("*" * 40)
         self.logger.info(f"Getting source ...")
         self.logger.info(f"Go to target URL: {target_id}...")
 
         def process_scrolling():
-
             self.browser.get(f"https://wwww.facebook.com/{target_id}")
 
             time.sleep(3)
             url = self.browser.current_url
-            if 'groups' in url.split('/'):
-                end_url = url.split('groups/')[-1]
+            if "groups" in url.split("/"):
+                end_url = url.split("groups/")[-1]
                 # self.logger.info(end_url)
             else:
                 end_url = target_id
-            
+
             count = 0
             switch = True
             old_numPosts = 0
-            specifiedNumber = num_posts # number of posts to get
+            specifiedNumber = num_posts  # number of posts to get
             self.logger.info("Start Scrolling...")
             while switch:
                 count += 1
                 postsList = None
                 last_post = None
-                
+
                 self.date_handover(self.browser)
                 self.openSeeMore(self.browser)
                 self.getBack(self.browser, end_url)
@@ -295,13 +323,17 @@ class FacebookScraper:
                 # if numPosts > old_numPosts:
                 #     self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
                 # old_numPosts = numPosts
-                
+
                 # Get the last post element
                 time.sleep(2)
-                postsList = self.browser.find_elements(By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))
+                postsList = self.browser.find_elements(
+                    By.XPATH, "//div[@class='{}']".format(tag.post_list_tag)
+                )
                 if postsList:
                     last_post = postsList[-1]
-                    self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
+                    self.browser.execute_script(
+                        "arguments[0].scrollIntoView();", last_post
+                    )
                     time.sleep(2)
 
                 # if postsList:
@@ -312,7 +344,7 @@ class FacebookScraper:
                 #         wait = WebDriverWait(self.browser, 10)
                 #         wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@class='{}']".format(tag.post_list_tag))))
                 #         self.browser.execute_script("arguments[0].scrollIntoView();", last_post)
-                #         time.sleep(2)   
+                #         time.sleep(2)
                 #     except StaleElementReferenceException:
                 #         # Handle StaleElementReferenceException by re-finding the last post element
                 #         print("StaleElementReferenceException. Retrying...")
@@ -326,7 +358,7 @@ class FacebookScraper:
 
                 # process check
                 numPosts = len(postsList)
-                self.logger.info(f'Scroll Count: {count}  numPosts: { numPosts}')
+                self.logger.info(f"Scroll Count: {count}  numPosts: { numPosts}")
 
                 if numPosts > old_numPosts:
                     old_numPosts = numPosts
@@ -336,40 +368,53 @@ class FacebookScraper:
                     # self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                     # time.sleep(3)
                     # # return page_source
-                    file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
+                    file_path = self.archiveAtEnd(
+                        self.browser,
+                        postsList,
+                        target_id,
+                        source_data=page_source,
+                        raw_data_dir=self.raw_data_dir,
+                        logger=self.logger,
+                    )
                     return file_path
                     # return process_scrolling()
 
                 # termination condition
-                if (numPosts >= specifiedNumber):
+                if numPosts >= specifiedNumber:
                     switch = False
                     self.date_handover(self.browser)
-                    self.openSeeMore(self.browser) 
+                    self.openSeeMore(self.browser)
                     self.getBack(self.browser, end_url)
-                        
+
             # Get the page source after all content is loaded
             page_source = self.browser.page_source
-            file_path = self.archiveAtEnd(self.browser, postsList, target_id, source_data=page_source, raw_data_dir=self.raw_data_dir, logger=self.logger)
+            file_path = self.archiveAtEnd(
+                self.browser,
+                postsList,
+                target_id,
+                source_data=page_source,
+                raw_data_dir=self.raw_data_dir,
+                logger=self.logger,
+            )
 
-            return file_path   
-        
+            return file_path
+
         # Initial call to process_scrolling
         return process_scrolling()
-            
+
     # def scrape_group(self, group_id, num_posts=10):
-    #     page_source = self.get_source(group_id, num_posts=num_posts) 
+    #     page_source = self.get_source(group_id, num_posts=num_posts)
     #     self.close()
     #     df = self.extract_data(group_id=group_id)
     #     self.logger.info(f"Done")
     #     self.write_csv(df, f"group_{group_id}_{len(df)}.csv")
     #     return df
-        
+
     # def scrape_groups(self, group_ids:list, num_posts=10):
     #     for group_id in group_ids:
-    #         page_source = self.get_source(group_id, num_posts=num_posts) 
+    #         page_source = self.get_source(group_id, num_posts=num_posts)
     #         df = self.extract_data(page_source)
     #         self.logger.info(f"Done, write to csv {group_id}")
     #         self.write_csv(df, f"group_{group_id}_{len(df)}.csv")
-            
+
     #     self.close()
-    
